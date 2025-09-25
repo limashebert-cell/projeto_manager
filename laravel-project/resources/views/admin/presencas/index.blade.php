@@ -3,44 +3,26 @@
 @section('title', 'Controle de Presença - Painel Administrativo')
 
 @section('content')
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="fas fa-clipboard-check me-2 text-warning"></i>
-        Atestar Absenteísmo
-    </h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <a href="{{ route('presencas.historico') }}" class="btn btn-outline-primary me-2">
-            <i class="fas fa-history me-1"></i>
-            Histórico
-        </a>
-        <a href="{{ route('auditoria.index') }}" class="btn btn-outline-info me-2">
-            <i class="fas fa-clipboard-list me-1"></i>
-            Auditoria
-        </a>
-        <div class="badge bg-primary fs-6">
-            <i class="fas fa-calendar me-1"></i>
-            {{ $dataFormatada->format('d/m/Y') }}
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+    <h4>Controle de Absenteísmo - {{ $dataFormatada->format('d/m/Y') }}</h4>
+    <div class="btn-group">
+        <a href="{{ route('presencas.historico') }}" class="btn btn-outline-primary btn-sm">Histórico</a>
+        <a href="{{ route('auditoria.index') }}" class="btn btn-outline-info btn-sm">Auditoria</a>
     </div>
 </div>
 
 @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
+    <div class="alert alert-success alert-dismissible" role="alert">
         {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 @endif
 
 <!-- Seletor de Data -->
-<div class="row mb-4">
+<div class="row mb-2">
     <div class="col-md-4">
         <form method="GET" action="{{ route('presencas.index') }}" class="d-flex">
-            <input type="date" 
-                   name="data" 
-                   value="{{ $data }}" 
-                   class="form-control me-2"
-                   onchange="this.form.submit()">
+            <input type="date" name="data" value="{{ $data }}" class="form-control form-control-sm me-2" onchange="this.form.submit()">
         </form>
     </div>
 </div>

@@ -16,8 +16,12 @@ class AdminController extends Controller
     public function dashboard()
     {
         $user = Auth::guard('admin')->user();
-        $totalUsers = AdminUser::where('role', 'admin')->count();
+        $totalUsers = AdminUser::count();
+        $recentUsers = AdminUser::select('id', 'name', 'username', 'area', 'role', 'active', 'created_at')
+                               ->orderBy('created_at', 'desc')
+                               ->limit(5)
+                               ->get();
         
-        return view('admin.dashboard', compact('user', 'totalUsers'));
+        return view('admin.dashboard', compact('user', 'totalUsers', 'recentUsers'));
     }
 }

@@ -20,6 +20,20 @@ use App\Http\Controllers\AuditoriaController;
 |
 */
 
+// Rota de teste
+Route::get('/test', function () {
+    return '<h1>Servidor funcionando!</h1><p>Laravel está OK.</p>';
+});
+
+// Rota de teste CSRF
+Route::get('/test-csrf', function () {
+    return view('test.csrf');
+})->name('test.csrf.form');
+
+Route::post('/test-csrf', function (Illuminate\Http\Request $request) {
+    return redirect()->back()->with('test_result', 'CSRF Token válido! Teste realizado com sucesso.');
+})->name('test.csrf');
+
 // Redirecionar para login
 Route::get('/', function () {
     return redirect()->route('login');
@@ -29,6 +43,7 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get');
 
 // Rotas do painel administrativo
 Route::middleware('auth:admin')->group(function () {
@@ -78,5 +93,18 @@ Route::middleware('auth:admin')->group(function () {
     Route::prefix('admin/auditoria')->name('auditoria.')->group(function () {
         Route::get('/', [AuditoriaController::class, 'index'])->name('index');
         Route::get('/{id}', [AuditoriaController::class, 'show'])->name('show');
+    });
+    
+    // Rotas para quase acidentes (todos os usuários autenticados)
+    Route::prefix('admin/quase-acidentes')->name('quase-acidentes.')->group(function () {
+        Route::get('/', [App\Http\Controllers\QuaseAcidenteController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\QuaseAcidenteController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\QuaseAcidenteController::class, 'store'])->name('store');
+        Route::get('/relatorio', [App\Http\Controllers\QuaseAcidenteController::class, 'relatorio'])->name('relatorio');
+        Route::get('/{quaseAcidente}', [App\Http\Controllers\QuaseAcidenteController::class, 'show'])->name('show');
+        Route::get('/{quaseAcidente}/edit', [App\Http\Controllers\QuaseAcidenteController::class, 'edit'])->name('edit');
+        Route::get('/{quaseAcidente}/pdf', [App\Http\Controllers\QuaseAcidenteController::class, 'relatorioPorId'])->name('pdf');
+        Route::put('/{quaseAcidente}', [App\Http\Controllers\QuaseAcidenteController::class, 'update'])->name('update');
+        Route::delete('/{quaseAcidente}', [App\Http\Controllers\QuaseAcidenteController::class, 'destroy'])->name('destroy');
     });
 });

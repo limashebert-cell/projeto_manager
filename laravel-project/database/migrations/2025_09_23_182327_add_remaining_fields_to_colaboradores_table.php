@@ -14,11 +14,22 @@ class AddRemainingFieldsToColaboradoresTable extends Migration
     public function up()
     {
         Schema::table('colaboradores', function (Blueprint $table) {
-            $table->string('prontuario')->nullable()->after('admin_user_id');
-            $table->date('data_admissao')->nullable()->after('nome');
-            $table->string('contato')->nullable()->after('data_admissao');
-            $table->date('data_aniversario')->nullable()->after('contato');
-            $table->enum('cargo', ['Auxiliar', 'Conferente', 'Adm', 'Op Empilhadeira'])->nullable()->after('data_aniversario');
+            // Verificar se as colunas já existem antes de adicionar
+            if (!Schema::hasColumn('colaboradores', 'prontuario')) {
+                $table->string('prontuario')->nullable()->after('admin_user_id');
+            }
+            if (!Schema::hasColumn('colaboradores', 'data_admissao')) {
+                $table->date('data_admissao')->nullable()->after('nome');
+            }
+            if (!Schema::hasColumn('colaboradores', 'contato')) {
+                $table->string('contato')->nullable()->after('data_admissao');
+            }
+            if (!Schema::hasColumn('colaboradores', 'data_aniversario')) {
+                $table->date('data_aniversario')->nullable()->after('contato');
+            }
+            if (!Schema::hasColumn('colaboradores', 'cargo')) {
+                $table->enum('cargo', ['Auxiliar', 'Conferente', 'Adm', 'Op Empilhadeira'])->nullable()->after('data_aniversario');
+            }
         });
     }
 

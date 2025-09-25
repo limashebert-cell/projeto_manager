@@ -15,7 +15,10 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = AdminUser::where('role', 'admin')->orderBy('created_at', 'desc')->get();
+        $users = AdminUser::select('id', 'name', 'username', 'area', 'active', 'created_at')
+                          ->where('role', 'admin')
+                          ->orderBy('created_at', 'desc')
+                          ->get();
         return view('admin.users.index', compact('users'));
     }
 

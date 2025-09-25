@@ -3,157 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'Painel Administrativo')</title>
-    
-    <!-- Bootstrap CSS -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Painel Admin')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { 
+            background: #fff; 
+            font-family: system-ui, sans-serif;
+            font-size: 13px;
+            line-height: 1.3;
         }
-        
-        .navbar-brand {
-            font-weight: bold;
-            color: #fff !important;
+        .navbar { 
+            background: #343a40 !important; 
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: none;
+            padding: 4px 8px;
         }
-        
-        .sidebar {
-            min-height: calc(100vh - 56px);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        .navbar-brand { 
+            font-size: 16px; 
+            font-weight: 600; 
         }
-        
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin: 5px;
-            transition: all 0.3s ease;
+        .nav-link { 
+            color: #fff !important; 
+            padding: 4px 8px;
+            font-size: 13px;
         }
-        
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background-color: rgba(255,255,255,0.2);
-            color: #fff;
-            transform: translateX(5px);
+        .nav-link:hover { 
+            background: rgba(255,255,255,0.1); 
         }
-        
-        .main-content {
-            padding: 20px;
+        .main-content { 
+            padding: 10px;
         }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
+        .card { 
+            border: 1px solid #dee2e6; 
+            border-radius: 3px;
+            box-shadow: none;
+            margin-bottom: 10px;
         }
-        
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 25px;
-            padding: 10px 25px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .form-control {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            padding: 12px 15px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        
-        .table {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        
-        .table thead th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+        .card-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 6px 10px;
             font-weight: 600;
+            font-size: 14px;
+        }
+        .card-body {
+            padding: 10px;
+        }
+        .btn { 
+            border-radius: 3px; 
+            font-size: 13px;
+            padding: 4px 8px;
+        }
+        .form-control { 
+            border-radius: 3px; 
+            border: 1px solid #ced4da;
+            font-size: 13px;
+            padding: 4px 8px;
+        }
+        .table { 
+            font-size: 13px; 
+            margin-bottom: 0;
+        }
+        .table th { 
+            background: #f8f9fa; 
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            padding: 6px 8px;
+        }
+        .table td { 
+            padding: 6px 8px; 
+            vertical-align: middle;
+        }
+        .alert { 
+            border-radius: 3px; 
+            font-size: 13px;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+        }
+        .badge { 
+            font-size: 11px; 
+        }
+        h1, h2, h3, h4, h5 {
+            margin-bottom: 8px;
+        }
+        .container-fluid {
+            padding: 0;
         }
         
-        .alert {
-            border-radius: 10px;
-            border: none;
+        /* Ajustes específicos para tabelas */
+        .table-responsive {
+            border-radius: 0;
         }
         
-        /* Responsividade */
+        .card-body.p-0 .table {
+            margin-bottom: 0;
+        }
+        
+        /* Avatar circle compacto */
+        .avatar-circle {
+            width: 24px;
+            height: 24px;
+            background: #6c757d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+        }
+        
+        /* Botões compactos */
+        .btn-sm {
+            padding: 2px 6px;
+            font-size: 11px;
+        }
+        
+        /* Layout compacto */
+        .main-content {
+            padding-top: 5px;
+            min-height: calc(100vh - 40px);
+        }
+        
+        .container-fluid {
+            padding: 0;
+        }
+        
+        .row {
+            margin: 0;
+        }
+        
+        /* Formulários compactos */
+        .form-group {
+            margin-bottom: 8px;
+        }
+        
+        .form-label {
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+        
+        /* Responsividade compacta */
         @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                top: 56px;
-                left: -250px;
-                width: 250px;
-                height: calc(100vh - 56px);
-                z-index: 1000;
-                transition: left 0.3s ease;
-            }
-            
-            .sidebar.show {
-                left: 0;
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
             }
             
             .main-content {
-                margin-left: 0;
-                padding: 15px;
+                padding: 8px;
             }
             
             .card {
-                margin-bottom: 20px;
-            }
-            
-            .table-responsive {
-                font-size: 14px;
-            }
-        }
-        
-        .mobile-toggle {
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .mobile-toggle {
-                display: block;
-            }
-        }
-        
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-        
-        @media (max-width: 768px) {
-            .overlay.show {
-                display: block;
+                margin-bottom: 8px;
             }
         }
     </style>
@@ -161,105 +164,60 @@
     @stack('styles')
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div class="container-fluid">
-            <button class="btn btn-link text-white mobile-toggle me-2" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-            <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-                <i class="fas fa-cogs me-2"></i>Painel Admin
-            </a>
-            
-            <div class="navbar-nav ms-auto">
-                @auth('admin')
-                    <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i>{{ Auth::guard('admin')->user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Sair
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                @endauth
-            </div>
-        </div>
-    </nav>
-
     <div class="container-fluid">
-        <div class="row">
-            @auth('admin')
-                <!-- Sidebar -->
-                <nav class="col-md-3 col-lg-2 d-md-block sidebar" id="sidebar">
-                    <div class="position-sticky pt-3">
-                        <ul class="nav flex-column">
+        @auth('admin')
+            <!-- Navbar -->
+            <nav class="navbar navbar-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
+                        Painel Admin
+                    </a>
+                    
+                    <ul class="navbar-nav d-flex flex-row">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
+                        </li>
+                        
+                        @if(Auth::guard('admin')->user()->isSuperAdmin())
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" 
-                                   href="{{ route('admin.dashboard') }}">
-                                    <i class="fas fa-tachometer-alt me-2"></i>
-                                    Dashboard
-                                </a>
+                                <a class="nav-link" href="{{ route('admin.users.index') }}">Usuários</a>
                             </li>
-                            @if(Auth::guard('admin')->user()->isSuperAdmin())
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" 
-                                       href="{{ route('admin.users.index') }}">
-                                        <i class="fas fa-users me-2"></i>
-                                        Gerenciar Usuários
-                                    </a>
-                                </li>
-                            @endif
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('colaboradores.*') ? 'active' : '' }}" 
-                                   href="{{ route('colaboradores.index') }}">
-                                    <i class="fas fa-user-friends me-2"></i>
-                                    Colaboradores
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('presencas.*') ? 'active' : '' }}" 
-                                   href="{{ route('presencas.index') }}">
-                                    <i class="fas fa-calendar-check me-2"></i>
-                                    Absenteísmo
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('auditoria.*') ? 'active' : '' }}" 
-                                   href="{{ route('auditoria.index') }}">
-                                    <i class="fas fa-clipboard-list me-2"></i>
-                                    Auditoria
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+                        @endif
+                        
+                        <!-- Botões para Gestores -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('presencas.index') }}">Absenteísmo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('colaboradores.index') }}">Colaboradores</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('quase-acidentes.index') }}">Quase Acidente</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('logout.get') }}">Sair</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
-                <!-- Overlay para mobile -->
-                <div class="overlay" id="overlay"></div>
-
-                <!-- Main content -->
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            @else
-                <main class="container-fluid">
-            @endauth
+            <!-- Main content -->
+            <main class="main-content">
+        @else
+            <main class="container-fluid p-4">
+        @endauth
                 
                 @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        {{ session('success') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        {{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
@@ -272,26 +230,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <script>
-        // Mobile sidebar toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
 
-            if (sidebarToggle && sidebar && overlay) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                    overlay.classList.toggle('show');
-                });
-
-                overlay.addEventListener('click', function() {
-                    sidebar.classList.remove('show');
-                    overlay.classList.remove('show');
-                });
-            }
-        });
-    </script>
     
     @stack('scripts')
 </body>

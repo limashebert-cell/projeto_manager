@@ -48,6 +48,17 @@ class AdminUser extends Authenticatable
     {
         return $this->hasOne(TimeclockRecord::class)->whereDate('date', today());
     }
+
+    // Accessors para compatibilidade com a view
+    public function getIsActiveAttribute()
+    {
+        return $this->active;
+    }
+
+    public function getIsSuperAdminAttribute()
+    {
+        return $this->role === 'super_admin';
+    }
     
     public function colaboradores()
     {
