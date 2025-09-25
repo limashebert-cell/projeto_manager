@@ -62,6 +62,6 @@ class AdminUser extends Authenticatable
     
     public function colaboradores()
     {
-        return $this->hasMany(Colaborador::class);
+        return $this->hasMany(Colaborador::class, 'admin_user_id');
     }
 }

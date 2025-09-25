@@ -6,8 +6,15 @@
 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
     <h4>Controle de Absenteísmo - {{ $dataFormatada->format('d/m/Y') }}</h4>
     <div class="btn-group">
-        <a href="{{ route('presencas.historico') }}" class="btn btn-outline-primary btn-sm">Histórico</a>
-        <a href="{{ route('auditoria.index') }}" class="btn btn-outline-info btn-sm">Auditoria</a>
+        <a href="{{ route('presencas.historico') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-list"></i> Histórico
+        </a>
+        <a href="{{ route('presencas.historico-alteracoes') }}" class="btn btn-outline-warning btn-sm">
+            <i class="fas fa-history"></i> Alterações
+        </a>
+        <a href="{{ route('auditoria.index') }}" class="btn btn-outline-info btn-sm">
+            <i class="fas fa-audit"></i> Auditoria
+        </a>
     </div>
 </div>
 

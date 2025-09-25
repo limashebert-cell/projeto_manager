@@ -11,7 +11,7 @@ class Presenca extends Model
     use HasFactory;
     
     protected $fillable = [
-        'user_id',
+        'admin_user_id',
         'colaborador_id', 
         'data',
         'status',
@@ -32,9 +32,15 @@ class Presenca extends Model
     ];
     
     // Relacionamentos
+    public function adminUser()
+    {
+        return $this->belongsTo(AdminUser::class, 'admin_user_id');
+    }
+    
+    // Manter compatibilidade com código antigo
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->adminUser();
     }
     
     public function colaborador()

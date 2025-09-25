@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Presenca;
 use App\Models\Colaborador;
 use App\Models\AuditoriaPresenca;
+use App\Models\HistoricoPresenca;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,8 +26,8 @@ class PresencaController extends Controller
         $colaboradores = Colaborador::where('admin_user_id', Auth::id())->get();
         
         // Buscar presenças já registradas para esta data
-        $presencasExistentes = Presenca::where('user_id', Auth::id())
-            ->where('data', $data)
+        $presencasExistentes = Presenca::where('admin_user_id', Auth::id())
+            ->whereDate('data', $data)
             ->get()
             ->keyBy('colaborador_id');
         
@@ -35,6 +36,13 @@ class PresencaController extends Controller
     
     public function store(Request $request)
     {
+        // Log para debugging
+        \Log::info('=== PRESENCA STORE START ===', [
+            'data' => $request->data,
+            'presencas_count' => count($request->presencas ?? []),
+            'user_id' => Auth::id()
+        ]);
+
         $request->validate([
             'data' => 'required|date',
             'presencas' => 'required|array',
@@ -46,8 +54,11 @@ class PresencaController extends Controller
         $data = $request->data;
         $userId = Auth::id();
         
-        // Deletar registros existentes para esta data (para permitir edição)
-        Presenca::where('user_id', $userId)->where('data', $data)->delete();
+        // Buscar registros existentes (para histórico)
+        $presencasExistentes = Presenca::where('admin_user_id', $userId)
+            ->whereDate('data', $data)
+            ->get()
+            ->keyBy('colaborador_id');
         
         // Preparar dados para auditoria
         $dadosPresenca = [];
@@ -66,25 +77,74 @@ class PresencaController extends Controller
                 ->first();
                 
             if ($colaborador) {
-                // Criar registro de presença
-                Presenca::create([
-                    'user_id' => $userId,
-                    'colaborador_id' => $presencaData['colaborador_id'],
-                    'data' => $data,
-                    'status' => $presencaData['status'],
-                    'observacoes' => $presencaData['observacoes'] ?? null
+                $colaboradorId = $presencaData['colaborador_id'];
+                $novoStatus = $presencaData['status'];
+                $novaObservacao = $presencaData['observacoes'] ?? null;
+                
+                // Verificar se já existia um registro para este colaborador
+                $registroExistente = $presencasExistentes->get($colaboradorId);
+                
+                // Criar ou atualizar registro de presença de forma manual
+                $presencaExistente = Presenca::where('admin_user_id', $userId)
+                    ->where('colaborador_id', $colaboradorId)
+                    ->whereDate('data', $data)
+                    ->first();
+                
+                if ($presencaExistente) {
+                    // Atualizar registro existente
+                    $presencaExistente->update([
+                        'status' => $novoStatus,
+                        'observacoes' => $novaObservacao
+                    ]);
+                } else {
+                    // Criar novo registro
+                    Presenca::create([
+                        'admin_user_id' => $userId,
+                        'colaborador_id' => $colaboradorId,
+                        'data' => $data,
+                        'status' => $novoStatus,
+                        'observacoes' => $novaObservacao
+                    ]);
+                }
+                
+                // Criar registro no histórico
+                $historico = HistoricoPresenca::create([
+                    'admin_user_id' => $userId,
+                    'colaborador_id' => $colaboradorId,
+                    'data_presenca' => $data,
+                    'status_anterior' => $registroExistente ? $registroExistente->status : null,
+                    'status_novo' => $novoStatus,
+                    'observacoes_anterior' => $registroExistente ? $registroExistente->observacoes : null,
+                    'observacoes_nova' => $novaObservacao,
+                    'acao' => $registroExistente ? 'editado' : 'criado',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'dados_completos' => [
+                        'colaborador_nome' => $colaborador->nome,
+                        'colaborador_prontuario' => $colaborador->prontuario,
+                        'data_registro' => now()->toDateTimeString(),
+                        'dados_request' => $presencaData
+                    ]
+                ]);
+
+                // Log do histórico criado
+                \Log::info('Histórico criado', [
+                    'historico_id' => $historico->id,
+                    'colaborador_id' => $colaboradorId,
+                    'acao' => $registroExistente ? 'editado' : 'criado',
+                    'status' => $novoStatus
                 ]);
                 
                 // Preparar dados para auditoria
                 $dadosPresenca[] = [
                     'colaborador_id' => $colaborador->id,
                     'colaborador_nome' => $colaborador->nome,
-                    'status' => $presencaData['status'],
-                    'observacoes' => $presencaData['observacoes'] ?? null
+                    'status' => $novoStatus,
+                    'observacoes' => $novaObservacao
                 ];
                 
                 // Contar status
-                $contadores[$presencaData['status']]++;
+                $contadores[$novoStatus]++;
             }
         }
         
@@ -101,6 +161,12 @@ class PresencaController extends Controller
             'observacoes' => "Registro de presenças salvo em " . now()->format('d/m/Y H:i:s')
         ]);
         
+        // Log final
+        \Log::info('=== PRESENCA STORE END ===', [
+            'total_processados' => count($dadosPresenca),
+            'historico_count_after' => HistoricoPresenca::count()
+        ]);
+
         return redirect()->back()->with('success', 'Presenças registradas com sucesso! Registro de auditoria criado.');
     }
     
@@ -110,7 +176,7 @@ class PresencaController extends Controller
         $dataFim = $request->get('data_fim', now()->format('Y-m-d'));
         
         $presencas = Presenca::with('colaborador')
-            ->where('user_id', Auth::id())
+            ->where('admin_user_id', Auth::id())
             ->whereBetween('data', [$dataInicio, $dataFim])
             ->orderBy('data', 'desc')
             ->orderBy('colaborador_id')
@@ -118,5 +184,29 @@ class PresencaController extends Controller
             ->groupBy('data');
             
         return view('admin.presencas.historico', compact('presencas', 'dataInicio', 'dataFim'));
+    }
+    
+    public function historicoAlteracoes(Request $request)
+    {
+        $dataInicio = $request->get('data_inicio', now()->startOfMonth()->format('Y-m-d'));
+        $dataFim = $request->get('data_fim', now()->format('Y-m-d'));
+        $colaboradorId = $request->get('colaborador_id');
+        
+        $query = HistoricoPresenca::with(['adminUser', 'colaborador'])
+            ->where('admin_user_id', Auth::id())
+            ->whereBetween('data_presenca', [$dataInicio, $dataFim]);
+            
+        if ($colaboradorId) {
+            $query->where('colaborador_id', $colaboradorId);
+        }
+        
+        $historico = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        // Buscar colaboradores para o filtro
+        $colaboradores = Colaborador::where('admin_user_id', Auth::id())
+            ->orderBy('nome')
+            ->get();
+            
+        return view('admin.presencas.historico-alteracoes', compact('historico', 'dataInicio', 'dataFim', 'colaboradorId', 'colaboradores'));
     }
 }

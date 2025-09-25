@@ -178,26 +178,26 @@
     <div class="section">
         @if($quaseAcidente->imagem_1 || $quaseAcidente->imagem_2)
         <div class="section-title">EVIDÊNCIAS FOTOGRÁFICAS</div>
-        <div style="text-align: center; margin: 8px 0;">
+        <div style="text-align: center; margin: 15px 0; padding: 10px 0;">
             @if($quaseAcidente->imagem_1)
-                <div style="display: inline-block; margin: 2px;">
+                <div style="display: inline-block; margin: 10px 15px; vertical-align: top;">
                     <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_1) }}" 
-                         style="max-width: 240px; max-height: 160px; border: 1px solid #ddd;">
-                    <div style="font-size: 8px; margin-top: 2px;">Imagem 1</div>
+                         style="max-width: 240px; max-height: 160px; border: 1px solid #ddd; display: block;">
+                    <div style="font-size: 9px; margin-top: 5px; text-align: center;">Imagem 1</div>
                 </div>
             @endif
             @if($quaseAcidente->imagem_2)
-                <div style="display: inline-block; margin: 2px;">
+                <div style="display: inline-block; margin: 10px 15px; vertical-align: top;">
                     <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_2) }}" 
-                         style="max-width: 240px; max-height: 160px; border: 1px solid #ddd;">
-                    <div style="font-size: 8px; margin-top: 2px;">Imagem 2</div>
+                         style="max-width: 240px; max-height: 160px; border: 1px solid #ddd; display: block;">
+                    <div style="font-size: 9px; margin-top: 5px; text-align: center;">Imagem 2</div>
                 </div>
             @endif
         </div>
         @endif
         
         @if($quaseAcidente->observacoes)
-        <div class="grid">
+        <div class="grid" style="margin-top: 20px;">
             <div class="row">
                 <div class="col col-label">Observações:</div>
                 <div class="col col-value" style="font-size: 9px;">{{ $quaseAcidente->observacoes }}</div>

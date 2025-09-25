@@ -138,6 +138,18 @@
                     
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">
+                            <i class="fas fa-user-tie me-1 text-muted"></i>
+                            Gestor Responsável
+                        </label>
+                        <p class="form-control-plaintext">
+                            {{ $colaborador->adminUser ? $colaborador->adminUser->name : 'Não informado' }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">
                             <i class="fas fa-calendar me-1 text-muted"></i>
                             Data de Cadastro
                         </label>

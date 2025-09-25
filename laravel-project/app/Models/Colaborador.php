@@ -21,7 +21,8 @@ class Colaborador extends Model
         'contato',
         'data_aniversario',
         'cargo',
-        'status'
+        'status',
+        'tipo_inatividade'
     ];
     
     protected $dates = [
@@ -29,10 +30,15 @@ class Colaborador extends Model
         'data_aniversario'
     ];
     
+    protected $casts = [
+        'data_admissao' => 'datetime',
+        'data_aniversario' => 'datetime',
+    ];
+    
     // Relacionamento com o usuário admin (proprietário)
     public function adminUser()
     {
-        return $this->belongsTo(AdminUser::class);
+        return $this->belongsTo(AdminUser::class, 'admin_user_id');
     }
     
     // Relacionamento com presenças

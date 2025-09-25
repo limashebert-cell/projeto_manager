@@ -145,6 +145,26 @@
             margin-bottom: 2px;
         }
         
+        /* Botões do menu principal */
+        .btn-menu-principal {
+            transition: all 0.3s ease;
+            border: 2px solid;
+            min-height: 120px;
+        }
+        
+        .btn-menu-principal:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .btn-menu-principal i {
+            transition: transform 0.3s ease;
+        }
+        
+        .btn-menu-principal:hover i {
+            transform: scale(1.1);
+        }
+        
         /* Responsividade compacta */
         @media (max-width: 768px) {
             .navbar-nav {
@@ -175,27 +195,6 @@
                     </a>
                     
                     <ul class="navbar-nav d-flex flex-row">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
-                        </li>
-                        
-                        @if(Auth::guard('admin')->user()->isSuperAdmin())
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.users.index') }}">Usuários</a>
-                            </li>
-                        @endif
-                        
-                        <!-- Botões para Gestores -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('presencas.index') }}">Absenteísmo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('colaboradores.index') }}">Colaboradores</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('quase-acidentes.index') }}">Quase Acidente</a>
-                        </li>
-                        
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('logout.get') }}">Sair</a>
                         </li>

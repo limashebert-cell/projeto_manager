@@ -35,7 +35,56 @@
     </div>
 </div>
 
-<!-- Ações -->
+<!-- Menu Principal -->
+<div class="card mb-2">
+    <div class="card-header">
+        <h6 class="mb-0">Menu Principal</h6>
+    </div>
+    <div class="card-body p-3">
+        <div class="row text-center">
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-tachometer-alt fa-2x mb-2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <a href="{{ route('presencas.index') }}" class="btn btn-outline-success btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                    <span>Absenteísmo</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <a href="{{ route('colaboradores.index') }}" class="btn btn-outline-info btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <span>Colaboradores</span>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <a href="{{ route('quase-acidentes.index') }}" class="btn btn-outline-warning btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <span>Quase Acidente</span>
+                </a>
+            </div>
+            @if(Auth::guard('admin')->user()->isSuperAdmin())
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-user-cog fa-2x mb-2"></i>
+                    <span>Usuários</span>
+                </a>
+            </div>
+            @endif
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <a href="{{ route('logout.get') }}" class="btn btn-outline-danger btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-sign-out-alt fa-2x mb-2"></i>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
 <div class="card mb-2">
     <div class="card-header">
         <h6 class="mb-0">Ações Rápidas</h6>
@@ -83,22 +132,19 @@
                                     <span class="badge bg-{{ $user->role === 'super_admin' ? 'danger' : 'primary' }}">
                                         {{ $user->role === 'super_admin' ? 'Super' : 'Admin' }}
                                     </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-{{ $user->active ? 'success' : 'secondary' }}">
-                                                {{ $user->active ? 'Ativo' : 'Inativo' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-success">Ativo</span>
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-sm btn-outline-primary">Ver</a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ $user->active ? 'success' : 'secondary' }}">
+                                        {{ $user->active ? 'Ativo' : 'Inativo' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         @else
             <div class="text-center p-3">
@@ -112,10 +158,38 @@
 </div>
 
 @else
-<div class="card">
-    <div class="card-body text-center p-3">
-        <h5>Bem-vindo, {{ Auth::guard('admin')->user()->name }}!</h5>
-        <p class="text-muted mb-0">Acesso limitado - contacte o administrador.</p>
+<!-- Menu Principal para Usuários Normais -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0">Bem-vindo, {{ Auth::guard('admin')->user()->name }}!</h6>
+    </div>
+    <div class="card-body p-3">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-tachometer-alt fa-2x mb-2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                <a href="{{ route('presencas.index') }}" class="btn btn-outline-success btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                    <span>Absenteísmo</span>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                <a href="{{ route('colaboradores.index') }}" class="btn btn-outline-info btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <span>Colaboradores</span>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                <a href="{{ route('quase-acidentes.index') }}" class="btn btn-outline-warning btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <span>Quase Acidente</span>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 @endif

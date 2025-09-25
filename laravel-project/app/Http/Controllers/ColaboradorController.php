@@ -10,7 +10,15 @@ class ColaboradorController extends Controller
 {
     public function index()
     {
-        $colaboradores = Auth::guard('admin')->user()->colaboradores()->paginate(10);
+        $user = Auth::guard('admin')->user();
+        
+        // Super Admin pode ver todos os colaboradores, outros users só os seus
+        if ($user->isSuperAdmin()) {
+            $colaboradores = Colaborador::with('adminUser')->paginate(10);
+        } else {
+            $colaboradores = $user->colaboradores()->with('adminUser')->paginate(10);
+        }
+        
         return view('admin.colaboradores.index', compact('colaboradores'));
     }
 
@@ -28,7 +36,8 @@ class ColaboradorController extends Controller
             'contato' => 'required|string|max:255',
             'data_aniversario' => 'required|date',
             'cargo' => 'required|in:Auxiliar,Conferente,Adm,Op Empilhadeira',
-            'status' => 'required|in:ativo,inativo'
+            'status' => 'required|in:ativo,inativo',
+            'tipo_inatividade' => 'nullable|required_if:status,inativo|in:afastado,desligado'
         ]);
 
         $adminUser = Auth::guard('admin')->user();
@@ -41,31 +50,43 @@ class ColaboradorController extends Controller
             ->with('success', 'Colaborador cadastrado com sucesso!');
     }
 
-    public function show(Colaborador $colaborador)
+    public function show($id)
     {
-        // Verifica se o colaborador pertence ao usuário logado
-        if ($colaborador->admin_user_id !== Auth::guard('admin')->id()) {
-            abort(403, 'Acesso negado.');
+        $user = Auth::guard('admin')->user();
+        
+        // Super Admin pode ver qualquer colaborador, outros users só os seus
+        if ($user->isSuperAdmin()) {
+            $colaborador = Colaborador::with('adminUser')->findOrFail($id);
+        } else {
+            $colaborador = $user->colaboradores()->with('adminUser')->findOrFail($id);
         }
         
         return view('admin.colaboradores.show', compact('colaborador'));
     }
 
-    public function edit(Colaborador $colaborador)
+    public function edit($id)
     {
-        // Verifica se o colaborador pertence ao usuário logado
-        if ($colaborador->admin_user_id !== Auth::guard('admin')->id()) {
-            abort(403, 'Acesso negado.');
+        $user = Auth::guard('admin')->user();
+        
+        // Super Admin pode editar qualquer colaborador, outros users só os seus
+        if ($user->isSuperAdmin()) {
+            $colaborador = Colaborador::with('adminUser')->findOrFail($id);
+        } else {
+            $colaborador = $user->colaboradores()->with('adminUser')->findOrFail($id);
         }
         
         return view('admin.colaboradores.edit', compact('colaborador'));
     }
 
-    public function update(Request $request, Colaborador $colaborador)
+    public function update(Request $request, $id)
     {
-        // Verifica se o colaborador pertence ao usuário logado
-        if ($colaborador->admin_user_id !== Auth::guard('admin')->id()) {
-            abort(403, 'Acesso negado.');
+        $user = Auth::guard('admin')->user();
+        
+        // Super Admin pode atualizar qualquer colaborador, outros users só os seus
+        if ($user->isSuperAdmin()) {
+            $colaborador = Colaborador::findOrFail($id);
+        } else {
+            $colaborador = $user->colaboradores()->findOrFail($id);
         }
         
         $request->validate([
@@ -75,7 +96,8 @@ class ColaboradorController extends Controller
             'contato' => 'required|string|max:255',
             'data_aniversario' => 'required|date',
             'cargo' => 'required|in:Auxiliar,Conferente,Adm,Op Empilhadeira',
-            'status' => 'required|in:ativo,inativo'
+            'status' => 'required|in:ativo,inativo',
+            'tipo_inatividade' => 'nullable|required_if:status,inativo|in:afastado,desligado'
         ]);
 
         $colaborador->update($request->all());
@@ -84,11 +106,15 @@ class ColaboradorController extends Controller
             ->with('success', 'Colaborador atualizado com sucesso!');
     }
 
-    public function destroy(Colaborador $colaborador)
+    public function destroy($id)
     {
-        // Verifica se o colaborador pertence ao usuário logado
-        if ($colaborador->admin_user_id !== Auth::guard('admin')->id()) {
-            abort(403, 'Acesso negado.');
+        $user = Auth::guard('admin')->user();
+        
+        // Super Admin pode excluir qualquer colaborador, outros users só os seus
+        if ($user->isSuperAdmin()) {
+            $colaborador = Colaborador::findOrFail($id);
+        } else {
+            $colaborador = $user->colaboradores()->findOrFail($id);
         }
         
         $colaborador->delete();

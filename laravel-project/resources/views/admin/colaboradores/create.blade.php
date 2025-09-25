@@ -173,6 +173,28 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        
+                        <!-- Campo condicional para tipo de inatividade -->
+                        <div class="col-md-6 mb-3" id="tipo-inatividade-container" style="display: none;">
+                            <label for="tipo_inatividade" class="form-label">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Tipo de Inatividade *
+                            </label>
+                            <select class="form-select @error('tipo_inatividade') is-invalid @enderror" 
+                                    id="tipo_inatividade" 
+                                    name="tipo_inatividade">
+                                <option value="">Selecione o tipo</option>
+                                <option value="afastado" {{ old('tipo_inatividade') === 'afastado' ? 'selected' : '' }}>
+                                    Afastado
+                                </option>
+                                <option value="desligado" {{ old('tipo_inatividade') === 'desligado' ? 'selected' : '' }}>
+                                    Desligado
+                                </option>
+                            </select>
+                            @error('tipo_inatividade')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                     
                     <div class="d-flex justify-content-between">
@@ -224,3 +246,30 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('status');
+    const tipoInatividadeContainer = document.getElementById('tipo-inatividade-container');
+    const tipoInatividadeSelect = document.getElementById('tipo_inatividade');
+    
+    function toggleTipoInatividade() {
+        if (statusSelect.value === 'inativo') {
+            tipoInatividadeContainer.style.display = 'block';
+            tipoInatividadeSelect.required = true;
+        } else {
+            tipoInatividadeContainer.style.display = 'none';
+            tipoInatividadeSelect.required = false;
+            tipoInatividadeSelect.value = '';
+        }
+    }
+    
+    // Executa ao carregar a página
+    toggleTipoInatividade();
+    
+    // Executa quando o status muda
+    statusSelect.addEventListener('change', toggleTipoInatividade);
+});
+</script>
+@endpush

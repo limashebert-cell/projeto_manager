@@ -42,6 +42,7 @@
                             <th>Cargo</th>
                             <th>Admissão</th>
                             <th>Contato</th>
+                            <th>Gestor</th>
                             <th>Status</th>
                             <th width="200">Ações</th>
                         </tr>
@@ -63,11 +64,15 @@
                                 </td>
                                 <td>
                                     <i class="fas fa-calendar me-2 text-muted"></i>
-                                    {{ $colaborador->data_admissao->format('d/m/Y') }}
+                                    {{ $colaborador->data_admissao ? $colaborador->data_admissao->format('d/m/Y') : 'Não informado' }}
                                 </td>
                                 <td>
                                     <i class="fas fa-phone me-2 text-muted"></i>
                                     {{ $colaborador->contato }}
+                                </td>
+                                <td>
+                                    <i class="fas fa-user-tie me-2 text-muted"></i>
+                                    {{ $colaborador->adminUser ? $colaborador->adminUser->name : 'Não informado' }}
                                 </td>
                                 <td>
                                     @if($colaborador->status === 'ativo')

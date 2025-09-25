@@ -87,6 +87,10 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/', [PresencaController::class, 'index'])->name('index');
         Route::post('/', [PresencaController::class, 'store'])->name('store');
         Route::get('/historico', [PresencaController::class, 'historico'])->name('historico');
+        Route::get('/historico-alteracoes', [PresencaController::class, 'historicoAlteracoes'])->name('historico-alteracoes');
+        Route::get('/teste', function() {
+            return view('admin.presencas.teste');
+        })->name('teste');
     });
     
     // Rotas para auditoria de presenças (todos os usuários autenticados)
