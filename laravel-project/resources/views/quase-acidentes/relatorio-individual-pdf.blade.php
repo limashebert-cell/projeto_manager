@@ -173,31 +173,37 @@
     </div>
     @endif
 
-    <!-- Evidências Fotográficas e Observações (seção compacta) -->
+    <!-- Evidências Fotográficas e Observações -->
     @if($quaseAcidente->imagem_1 || $quaseAcidente->imagem_2 || $quaseAcidente->observacoes)
     <div class="section">
-        <div class="grid">
-            @if($quaseAcidente->imagem_1 || $quaseAcidente->imagem_2)
-            <div class="row">
-                <div class="col col-label">Evidências:</div>
-                <div class="col" style="text-align: center;">
-                    @if($quaseAcidente->imagem_1)
-                        <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_1) }}" style="max-width: 60px; max-height: 40px; margin: 0 2px; border: 1px solid #ddd;">
-                    @endif
-                    @if($quaseAcidente->imagem_2)
-                        <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_2) }}" style="max-width: 60px; max-height: 40px; margin: 0 2px; border: 1px solid #ddd;">
-                    @endif
+        @if($quaseAcidente->imagem_1 || $quaseAcidente->imagem_2)
+        <div class="section-title">EVIDÊNCIAS FOTOGRÁFICAS</div>
+        <div style="text-align: center; margin: 8px 0;">
+            @if($quaseAcidente->imagem_1)
+                <div style="display: inline-block; margin: 2px;">
+                    <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_1) }}" 
+                         style="max-width: 240px; max-height: 160px; border: 1px solid #ddd;">
+                    <div style="font-size: 8px; margin-top: 2px;">Imagem 1</div>
                 </div>
-            </div>
             @endif
-            
-            @if($quaseAcidente->observacoes)
+            @if($quaseAcidente->imagem_2)
+                <div style="display: inline-block; margin: 2px;">
+                    <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_2) }}" 
+                         style="max-width: 240px; max-height: 160px; border: 1px solid #ddd;">
+                    <div style="font-size: 8px; margin-top: 2px;">Imagem 2</div>
+                </div>
+            @endif
+        </div>
+        @endif
+        
+        @if($quaseAcidente->observacoes)
+        <div class="grid">
             <div class="row">
                 <div class="col col-label">Observações:</div>
                 <div class="col col-value" style="font-size: 9px;">{{ $quaseAcidente->observacoes }}</div>
             </div>
-            @endif
         </div>
+        @endif
     </div>
     @endif
 

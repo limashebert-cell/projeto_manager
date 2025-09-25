@@ -2,7 +2,8 @@
 
 @section('title', 'Detalhes do Quase Acidente')
 
-@sectio@if($quaseAcidente->acoes_tomadas)
+@section('content')
+@if($quaseAcidente->acoes_tomadas)
 <div class="card mb-3">
     <div class="card-header">
         <h6 class="mb-0">Ações Tomadas</h6>
@@ -51,7 +52,7 @@
         </div>
     </div>
 </div>
-@endif')
+@endif
 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
     <h4>Quase Acidente #{{ $quaseAcidente->id }}</h4>
     <div class="btn-group">
