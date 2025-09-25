@@ -19,11 +19,19 @@ class QuaseAcidente extends Model
         'gravidade',
         'acoes_tomadas',
         'status',
-        'responsavel_id'
+        'responsavel_id',
+        'imagem_1',
+        'imagem_2',
+        'houve_dano_material',
+        'houve_prejuizo',
+        'valor_estimado'
     ];
     
     protected $casts = [
         'data_ocorrencia' => 'datetime',
+        'houve_dano_material' => 'boolean',
+        'houve_prejuizo' => 'boolean',
+        'valor_estimado' => 'decimal:2',
     ];
     
     public function responsavel()

@@ -1,17 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Registrar Quase Acidente')
+@section('title', 'Editar Quase Acidente')
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-    <h4>Registrar Quase Acidente</h4>
-    <a href="{{ route('quase-acidentes.index') }}" class="btn btn-secondary btn-sm">← Voltar</a>
+    <h4>Editar Quase Acidente #{{ $quaseAcidente->id }}</h4>
+    <a href="{{ route('quase-acidentes.show', $quaseAcidente->id) }}" class="btn btn-secondary btn-sm">← Voltar</a>
 </div>
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" action="{{ route('quase-acidentes.store') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('quase-acidentes.update', $quaseAcidente->id) }}" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             
             <div class="row">
                 <div class="col-md-6">
@@ -20,7 +21,7 @@
                         <input type="datetime-local" 
                                name="data_ocorrencia" 
                                class="form-control @error('data_ocorrencia') is-invalid @enderror" 
-                               value="{{ old('data_ocorrencia', now()->format('Y-m-d\TH:i')) }}" 
+                               value="{{ old('data_ocorrencia', $quaseAcidente->data_ocorrencia->format('Y-m-d\TH:i')) }}" 
                                required>
                         @error('data_ocorrencia')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -34,7 +35,7 @@
                         <input type="text" 
                                name="local" 
                                class="form-control @error('local') is-invalid @enderror" 
-                               value="{{ old('local') }}" 
+                               value="{{ old('local', $quaseAcidente->local) }}" 
                                placeholder="Ex: Setor de Produção, Almoxarifado..."
                                required>
                         @error('local')
@@ -51,7 +52,7 @@
                         <input type="text" 
                                name="colaborador_envolvido" 
                                class="form-control @error('colaborador_envolvido') is-invalid @enderror" 
-                               value="{{ old('colaborador_envolvido') }}" 
+                               value="{{ old('colaborador_envolvido', $quaseAcidente->colaborador_envolvido) }}" 
                                placeholder="Nome do colaborador (opcional)">
                         @error('colaborador_envolvido')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -63,9 +64,9 @@
                     <div class="form-group mb-2">
                         <label class="form-label">Gravidade</label>
                         <select name="gravidade" class="form-control @error('gravidade') is-invalid @enderror" required>
-                            <option value="baixa" {{ old('gravidade') == 'baixa' ? 'selected' : '' }}>Baixa</option>
-                            <option value="media" {{ old('gravidade') == 'media' ? 'selected' : '' }}>Média</option>
-                            <option value="alta" {{ old('gravidade') == 'alta' ? 'selected' : '' }}>Alta</option>
+                            <option value="baixa" {{ old('gravidade', $quaseAcidente->gravidade) == 'baixa' ? 'selected' : '' }}>Baixa</option>
+                            <option value="media" {{ old('gravidade', $quaseAcidente->gravidade) == 'media' ? 'selected' : '' }}>Média</option>
+                            <option value="alta" {{ old('gravidade', $quaseAcidente->gravidade) == 'alta' ? 'selected' : '' }}>Alta</option>
                         </select>
                         @error('gravidade')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -80,7 +81,7 @@
                           class="form-control @error('descricao') is-invalid @enderror" 
                           rows="4" 
                           placeholder="Descreva detalhadamente o que aconteceu..."
-                          required>{{ old('descricao') }}</textarea>
+                          required>{{ old('descricao', $quaseAcidente->descricao) }}</textarea>
                 @error('descricao')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -91,7 +92,7 @@
                 <textarea name="acoes_tomadas" 
                           class="form-control @error('acoes_tomadas') is-invalid @enderror" 
                           rows="3" 
-                          placeholder="Quais ações foram tomadas imediatamente?">{{ old('acoes_tomadas') }}</textarea>
+                          placeholder="Quais ações foram tomadas imediatamente?">{{ old('acoes_tomadas', $quaseAcidente->acoes_tomadas) }}</textarea>
                 @error('acoes_tomadas')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -104,6 +105,21 @@
                             <i class="fas fa-camera me-1"></i>
                             Imagem 1 (Opcional)
                         </label>
+                        
+                        @if($quaseAcidente->imagem_1)
+                        <div class="mb-2">
+                            <img src="{{ asset('uploads/quase_acidentes/' . $quaseAcidente->imagem_1) }}" 
+                                 alt="Imagem atual" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 150px;">
+                            <div class="form-check mt-1">
+                                <input type="checkbox" name="remove_imagem_1" value="1" class="form-check-input" id="remove1">
+                                <label class="form-check-label text-danger" for="remove1">
+                                    <i class="fas fa-trash"></i> Remover imagem atual
+                                </label>
+                            </div>
+                        </div>
+                        @endif
                         
                         <!-- Botões de Ação -->
                         <div class="d-flex gap-2 mb-2">
@@ -133,7 +149,7 @@
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                         
-                        <!-- Preview da imagem -->
+                        <!-- Preview da nova imagem -->
                         <div class="mt-2">
                             <img id="preview1" src="#" alt="Preview" style="display: none; max-width: 200px; max-height: 150px; border-radius: 5px; border: 1px solid #ddd;">
                         </div>
@@ -147,6 +163,21 @@
                             <i class="fas fa-camera me-1"></i>
                             Imagem 2 (Opcional)
                         </label>
+                        
+                        @if($quaseAcidente->imagem_2)
+                        <div class="mb-2">
+                            <img src="{{ asset('uploads/quase_acidentes/' . $quaseAcidente->imagem_2) }}" 
+                                 alt="Imagem atual" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 150px;">
+                            <div class="form-check mt-1">
+                                <input type="checkbox" name="remove_imagem_2" value="1" class="form-check-input" id="remove2">
+                                <label class="form-check-label text-danger" for="remove2">
+                                    <i class="fas fa-trash"></i> Remover imagem atual
+                                </label>
+                            </div>
+                        </div>
+                        @endif
                         
                         <!-- Botões de Ação -->
                         <div class="d-flex gap-2 mb-2">
@@ -176,7 +207,7 @@
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                         
-                        <!-- Preview da imagem -->
+                        <!-- Preview da nova imagem -->
                         <div class="mt-2">
                             <img id="preview2" src="#" alt="Preview" style="display: none; max-width: 200px; max-height: 150px; border-radius: 5px; border: 1px solid #ddd;">
                         </div>
@@ -188,9 +219,9 @@
             <div class="form-group mb-3">
                 <label class="form-label">Status</label>
                 <select name="status" class="form-control @error('status') is-invalid @enderror" required>
-                    <option value="pendente" {{ old('status') == 'pendente' ? 'selected' : '' }}>Pendente</option>
-                    <option value="em_andamento" {{ old('status') == 'em_andamento' ? 'selected' : '' }}>Em Andamento</option>
-                    <option value="concluido" {{ old('status') == 'concluido' ? 'selected' : '' }}>Concluído</option>
+                    <option value="pendente" {{ old('status', $quaseAcidente->status) == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                    <option value="em_andamento" {{ old('status', $quaseAcidente->status) == 'em_andamento' ? 'selected' : '' }}>Em Andamento</option>
+                    <option value="concluido" {{ old('status', $quaseAcidente->status) == 'concluido' ? 'selected' : '' }}>Concluído</option>
                 </select>
                 @error('status')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -216,7 +247,7 @@
                                            value="1" 
                                            class="form-check-input" 
                                            id="dano_sim"
-                                           {{ old('houve_dano_material') == '1' ? 'checked' : '' }}>
+                                           {{ old('houve_dano_material', $quaseAcidente->houve_dano_material ? '1' : '0') == '1' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="dano_sim">
                                         <i class="fas fa-check-circle text-danger me-1"></i>
                                         Sim
@@ -228,7 +259,7 @@
                                            value="0" 
                                            class="form-check-input" 
                                            id="dano_nao"
-                                           {{ old('houve_dano_material', '0') == '0' ? 'checked' : '' }}>
+                                           {{ old('houve_dano_material', $quaseAcidente->houve_dano_material ? '1' : '0') == '0' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="dano_nao">
                                         <i class="fas fa-times-circle text-success me-1"></i>
                                         Não
@@ -250,7 +281,7 @@
                                            class="form-check-input" 
                                            id="prejuizo_sim"
                                            onclick="toggleValorEstimado(true)"
-                                           {{ old('houve_prejuizo') == '1' ? 'checked' : '' }}>
+                                           {{ old('houve_prejuizo', $quaseAcidente->houve_prejuizo ? '1' : '0') == '1' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="prejuizo_sim">
                                         <i class="fas fa-check-circle text-danger me-1"></i>
                                         Sim
@@ -263,7 +294,7 @@
                                            class="form-check-input" 
                                            id="prejuizo_nao"
                                            onclick="toggleValorEstimado(false)"
-                                           {{ old('houve_prejuizo', '0') == '0' ? 'checked' : '' }}>
+                                           {{ old('houve_prejuizo', $quaseAcidente->houve_prejuizo ? '1' : '0') == '0' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="prejuizo_nao">
                                         <i class="fas fa-times-circle text-success me-1"></i>
                                         Não
@@ -277,7 +308,7 @@
                     </div>
 
                     <!-- Campo Valor Estimado -->
-                    <div class="row" id="valorEstimadoContainer" style="{{ old('houve_prejuizo') == '1' ? '' : 'display: none;' }}">
+                    <div class="row" id="valorEstimadoContainer" style="{{ old('houve_prejuizo', $quaseAcidente->houve_prejuizo) ? '' : 'display: none;' }}">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label class="form-label">
@@ -289,7 +320,7 @@
                                     <input type="number" 
                                            name="valor_estimado" 
                                            class="form-control @error('valor_estimado') is-invalid @enderror" 
-                                           value="{{ old('valor_estimado') }}"
+                                           value="{{ old('valor_estimado', $quaseAcidente->valor_estimado) }}"
                                            step="0.01"
                                            min="0"
                                            placeholder="0,00">
@@ -305,8 +336,8 @@
             </div>
             
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm">Salvar Registro</button>
-                <a href="{{ route('quase-acidentes.index') }}" class="btn btn-secondary btn-sm">Cancelar</a>
+                <button type="submit" class="btn btn-primary btn-sm">Atualizar Registro</button>
+                <a href="{{ route('quase-acidentes.show', $quaseAcidente->id) }}" class="btn btn-secondary btn-sm">Cancelar</a>
             </div>
         </form>
     </div>

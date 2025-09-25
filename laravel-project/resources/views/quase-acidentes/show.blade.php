@@ -2,7 +2,56 @@
 
 @section('title', 'Detalhes do Quase Acidente')
 
-@section('content')
+@sectio@if($quaseAcidente->acoes_tomadas)
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0">Ações Tomadas</h6>
+    </div>
+    <div class="card-body">
+        <p>{{ $quaseAcidente->acoes_tomadas }}</p>
+    </div>
+</div>
+@endif
+
+@if($quaseAcidente->imagem_1 || $quaseAcidente->imagem_2)
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-camera me-2"></i>
+            Imagens do Local
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            @if($quaseAcidente->imagem_1)
+            <div class="col-md-6 mb-3">
+                <div class="text-center">
+                    <img src="{{ asset('uploads/quase_acidentes/' . $quaseAcidente->imagem_1) }}" 
+                         alt="Imagem 1" 
+                         class="img-fluid rounded shadow-sm" 
+                         style="max-height: 300px; cursor: pointer;"
+                         onclick="showImageModal('{{ asset('uploads/quase_acidentes/' . $quaseAcidente->imagem_1) }}', 'Imagem 1')">
+                    <p class="text-muted mt-2 small">Imagem 1 - Clique para ampliar</p>
+                </div>
+            </div>
+            @endif
+            
+            @if($quaseAcidente->imagem_2)
+            <div class="col-md-6 mb-3">
+                <div class="text-center">
+                    <img src="{{ asset('uploads/quase_acidentes/' . $quaseAcidente->imagem_2) }}" 
+                         alt="Imagem 2" 
+                         class="img-fluid rounded shadow-sm" 
+                         style="max-height: 300px; cursor: pointer;"
+                         onclick="showImageModal('{{ asset('uploads/quase_acidentes/' . $quaseAcidente->imagem_2) }}', 'Imagem 2')">
+                    <p class="text-muted mt-2 small">Imagem 2 - Clique para ampliar</p>
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+@endif')
 <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
     <h4>Quase Acidente #{{ $quaseAcidente->id }}</h4>
     <div class="btn-group">
@@ -94,6 +143,78 @@
 </div>
 @endif
 
+<!-- Seção de Danos e Prejuízos -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Avaliação de Danos
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <strong>Dano Material:</strong>
+                @if($quaseAcidente->houve_dano_material)
+                    <span class="badge bg-danger ms-2">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Sim
+                    </span>
+                @else
+                    <span class="badge bg-success ms-2">
+                        <i class="fas fa-times-circle me-1"></i>
+                        Não
+                    </span>
+                @endif
+            </div>
+            
+            <div class="col-md-4">
+                <strong>Prejuízo:</strong>
+                @if($quaseAcidente->houve_prejuizo)
+                    <span class="badge bg-danger ms-2">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Sim
+                    </span>
+                @else
+                    <span class="badge bg-success ms-2">
+                        <i class="fas fa-times-circle me-1"></i>
+                        Não
+                    </span>
+                @endif
+            </div>
+            
+            @if($quaseAcidente->houve_prejuizo && $quaseAcidente->valor_estimado)
+            <div class="col-md-4">
+                <strong>Valor Estimado:</strong>
+                <span class="badge bg-warning text-dark ms-2">
+                    <i class="fas fa-dollar-sign me-1"></i>
+                    R$ {{ number_format($quaseAcidente->valor_estimado, 2, ',', '.') }}
+                </span>
+            </div>
+            @endif
+        </div>
+        
+        @if($quaseAcidente->houve_dano_material || $quaseAcidente->houve_prejuizo)
+        <div class="mt-2">
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>
+                    <strong>Atenção:</strong> Este quase acidente resultou em 
+                    @if($quaseAcidente->houve_dano_material && $quaseAcidente->houve_prejuizo)
+                        dano material e prejuízo financeiro.
+                    @elseif($quaseAcidente->houve_dano_material)
+                        dano material.
+                    @else
+                        prejuízo financeiro.
+                    @endif
+                    Requer acompanhamento especial.
+                </div>
+            </div>
+        </div>
+        @endif
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h6 class="mb-0">Informações do Sistema</h6>
@@ -114,4 +235,29 @@
     </div>
 </div>
 
+<!-- Modal para ampliar imagens -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Visualizar Imagem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="Imagem ampliada" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+function showImageModal(imageSrc, title) {
+    document.getElementById('modalImage').src = imageSrc;
+    document.getElementById('imageModalLabel').textContent = title;
+    new bootstrap.Modal(document.getElementById('imageModal')).show();
+}
+</script>
+@endpush

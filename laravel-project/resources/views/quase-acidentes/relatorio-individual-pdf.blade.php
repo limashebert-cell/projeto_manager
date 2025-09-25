@@ -162,6 +162,31 @@
     </div>
     @endif
 
+    @if($quaseAcidente->imagem_1 || $quaseAcidente->imagem_2)
+    <div class="section">
+        <h3>Registros Fotográficos</h3>
+        <div class="images-container" style="text-align: center;">
+            @if($quaseAcidente->imagem_1)
+                <div style="margin-bottom: 15px;">
+                    <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_1) }}" 
+                         alt="Registro Fotográfico 1" 
+                         style="max-width: 300px; max-height: 200px; border: 1px solid #ddd; border-radius: 5px;">
+                    <p style="margin: 5px 0; font-size: 12px; color: #666;">Imagem 1 - Registro do local</p>
+                </div>
+            @endif
+            
+            @if($quaseAcidente->imagem_2)
+                <div style="margin-bottom: 15px;">
+                    <img src="{{ public_path('uploads/quase_acidentes/' . $quaseAcidente->imagem_2) }}" 
+                         alt="Registro Fotográfico 2" 
+                         style="max-width: 300px; max-height: 200px; border: 1px solid #ddd; border-radius: 5px;">
+                    <p style="margin: 5px 0; font-size: 12px; color: #666;">Imagem 2 - Registro do local</p>
+                </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <div class="section">
         <h3>Classificação de Risco</h3>
         <div class="info-box">

@@ -15,6 +15,8 @@ class Colaborador extends Model
         'admin_user_id',
         'prontuario',
         'nome',
+        'email',
+        'telefone',
         'data_admissao',
         'contato',
         'data_aniversario',

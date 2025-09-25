@@ -44,9 +44,14 @@ class QuaseAcidenteController extends Controller
             'gravidade' => 'required|in:baixa,media,alta',
             'acoes_tomadas' => 'nullable|string',
             'status' => 'required|in:pendente,em_andamento,concluido',
+            'imagem_1' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'imagem_2' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'houve_dano_material' => 'required|boolean',
+            'houve_prejuizo' => 'required|boolean',
+            'valor_estimado' => 'nullable|numeric|min:0|required_if:houve_prejuizo,1',
         ]);
 
-        \App\Models\QuaseAcidente::create([
+        $data = [
             'data_ocorrencia' => $request->data_ocorrencia,
             'local' => $request->local,
             'descricao' => $request->descricao,
@@ -55,7 +60,34 @@ class QuaseAcidenteController extends Controller
             'acoes_tomadas' => $request->acoes_tomadas,
             'status' => $request->status,
             'responsavel_id' => auth('admin')->id(),
-        ]);
+            'houve_dano_material' => $request->houve_dano_material,
+            'houve_prejuizo' => $request->houve_prejuizo,
+            'valor_estimado' => $request->houve_prejuizo ? $request->valor_estimado : null,
+        ];
+
+        // Upload das imagens
+        $uploadPath = public_path('uploads/quase_acidentes');
+        
+        // Garantir que o diretório existe
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        if ($request->hasFile('imagem_1')) {
+            $imagem1 = $request->file('imagem_1');
+            $nomeImagem1 = 'quase_acidente_' . time() . '_' . uniqid() . '_1.' . $imagem1->getClientOriginalExtension();
+            $imagem1->move($uploadPath, $nomeImagem1);
+            $data['imagem_1'] = $nomeImagem1;
+        }
+
+        if ($request->hasFile('imagem_2')) {
+            $imagem2 = $request->file('imagem_2');
+            $nomeImagem2 = 'quase_acidente_' . time() . '_' . uniqid() . '_2.' . $imagem2->getClientOriginalExtension();
+            $imagem2->move($uploadPath, $nomeImagem2);
+            $data['imagem_2'] = $nomeImagem2;
+        }
+
+        \App\Models\QuaseAcidente::create($data);
 
         return redirect()->route('quase-acidentes.index')
                          ->with('success', 'Quase acidente registrado com sucesso!');
@@ -81,7 +113,15 @@ class QuaseAcidenteController extends Controller
      */
     public function edit($id)
     {
-        //
+        $quaseAcidente = \App\Models\QuaseAcidente::findOrFail($id);
+        
+        // Verificar permissões - apenas super admin ou responsável pode editar
+        if (!auth('admin')->user()->isSuperAdmin() && 
+            $quaseAcidente->responsavel_id != auth('admin')->id()) {
+            abort(403, 'Não autorizado.');
+        }
+        
+        return view('quase-acidentes.edit', compact('quaseAcidente'));
     }
 
     /**
@@ -93,7 +133,92 @@ class QuaseAcidenteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $quaseAcidente = \App\Models\QuaseAcidente::findOrFail($id);
+        
+        // Verificar permissões
+        if (!auth('admin')->user()->isSuperAdmin() && 
+            $quaseAcidente->responsavel_id != auth('admin')->id()) {
+            abort(403, 'Não autorizado.');
+        }
+        
+        $request->validate([
+            'data_ocorrencia' => 'required|date',
+            'local' => 'required|string|max:255',
+            'descricao' => 'required|string',
+            'colaborador_envolvido' => 'nullable|string|max:255',
+            'gravidade' => 'required|in:baixa,media,alta',
+            'acoes_tomadas' => 'nullable|string',
+            'status' => 'required|in:pendente,em_andamento,concluido',
+            'imagem_1' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'imagem_2' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'houve_dano_material' => 'required|boolean',
+            'houve_prejuizo' => 'required|boolean',
+            'valor_estimado' => 'nullable|numeric|min:0|required_if:houve_prejuizo,1',
+        ]);
+
+        $data = [
+            'data_ocorrencia' => $request->data_ocorrencia,
+            'local' => $request->local,
+            'descricao' => $request->descricao,
+            'colaborador_envolvido' => $request->colaborador_envolvido,
+            'gravidade' => $request->gravidade,
+            'acoes_tomadas' => $request->acoes_tomadas,
+            'status' => $request->status,
+            'houve_dano_material' => $request->houve_dano_material,
+            'houve_prejuizo' => $request->houve_prejuizo,
+            'valor_estimado' => $request->houve_prejuizo ? $request->valor_estimado : null,
+        ];
+
+        // Upload das novas imagens
+        $uploadPath = public_path('uploads/quase_acidentes');
+        
+        // Garantir que o diretório existe
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        // Processar imagem 1
+        if ($request->hasFile('imagem_1')) {
+            // Remover imagem antiga se existir
+            if ($quaseAcidente->imagem_1 && file_exists($uploadPath . '/' . $quaseAcidente->imagem_1)) {
+                unlink($uploadPath . '/' . $quaseAcidente->imagem_1);
+            }
+            
+            $imagem1 = $request->file('imagem_1');
+            $nomeImagem1 = 'quase_acidente_' . time() . '_' . uniqid() . '_1.' . $imagem1->getClientOriginalExtension();
+            $imagem1->move($uploadPath, $nomeImagem1);
+            $data['imagem_1'] = $nomeImagem1;
+        } elseif ($request->has('remove_imagem_1')) {
+            // Remover imagem se marcado para remoção
+            if ($quaseAcidente->imagem_1 && file_exists($uploadPath . '/' . $quaseAcidente->imagem_1)) {
+                unlink($uploadPath . '/' . $quaseAcidente->imagem_1);
+            }
+            $data['imagem_1'] = null;
+        }
+
+        // Processar imagem 2
+        if ($request->hasFile('imagem_2')) {
+            // Remover imagem antiga se existir
+            if ($quaseAcidente->imagem_2 && file_exists($uploadPath . '/' . $quaseAcidente->imagem_2)) {
+                unlink($uploadPath . '/' . $quaseAcidente->imagem_2);
+            }
+            
+            $imagem2 = $request->file('imagem_2');
+            $nomeImagem2 = 'quase_acidente_' . time() . '_' . uniqid() . '_2.' . $imagem2->getClientOriginalExtension();
+            $imagem2->move($uploadPath, $nomeImagem2);
+            $data['imagem_2'] = $nomeImagem2;
+        } elseif ($request->has('remove_imagem_2')) {
+            // Remover imagem se marcado para remoção
+            if ($quaseAcidente->imagem_2 && file_exists($uploadPath . '/' . $quaseAcidente->imagem_2)) {
+                unlink($uploadPath . '/' . $quaseAcidente->imagem_2);
+            }
+            $data['imagem_2'] = null;
+        }
+
+        $quaseAcidente->update($data);
+
+        return redirect()->route('quase-acidentes.show', $quaseAcidente->id)
+                         ->with('success', 'Quase acidente atualizado com sucesso!');
     }
 
     /**
