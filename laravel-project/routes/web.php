@@ -87,7 +87,9 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/', [PresencaController::class, 'index'])->name('index');
         Route::post('/', [PresencaController::class, 'store'])->name('store');
         Route::get('/historico', [PresencaController::class, 'historico'])->name('historico');
+        Route::get('/historico/csv', [PresencaController::class, 'exportarHistoricoGeralCSV'])->name('historico.csv');
         Route::get('/historico-alteracoes', [PresencaController::class, 'historicoAlteracoes'])->name('historico-alteracoes');
+        Route::get('/historico-alteracoes/csv', [PresencaController::class, 'exportarHistoricoCSV'])->name('historico-alteracoes.csv');
         Route::get('/teste', function() {
             return view('admin.presencas.teste');
         })->name('teste');

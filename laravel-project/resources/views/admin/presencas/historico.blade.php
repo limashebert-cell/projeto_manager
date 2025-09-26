@@ -27,6 +27,10 @@
             <i class="fas fa-list-alt me-1"></i>
             Log de Alterações
         </a>
+        <button type="button" class="btn btn-success me-2" onclick="exportarHistoricoGeralCSV()">
+            <i class="fas fa-file-csv me-1"></i>
+            Exportar CSV
+        </button>
         <div class="btn-group me-2" role="group">
             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="expandAll()">
                 <i class="fas fa-expand-arrows-alt me-1"></i>

@@ -18,6 +18,9 @@
                         <a href="{{ route('presencas.historico') }}" class="btn btn-outline-info">
                             <i class="fas fa-list"></i> Histórico Geral
                         </a>
+                        <button type="button" class="btn btn-success" onclick="exportarCSV()">
+                            <i class="fas fa-file-csv"></i> Exportar CSV
+                        </button>
                     </div>
                 </div>
                 
@@ -225,4 +228,55 @@
     vertical-align: middle;
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+function exportarCSV() {
+    // Pegar os valores dos filtros atuais
+    const dataInicio = document.querySelector('input[name="data_inicio"]').value;
+    const dataFim = document.querySelector('input[name="data_fim"]').value;
+    const colaboradorId = document.querySelector('select[name="colaborador_id"]').value;
+    
+    // Construir URL com os filtros
+    let url = '{{ route("presencas.historico-alteracoes.csv") }}';
+    const params = new URLSearchParams();
+    
+    if (dataInicio) params.append('data_inicio', dataInicio);
+    if (dataFim) params.append('data_fim', dataFim);
+    if (colaboradorId) params.append('colaborador_id', colaboradorId);
+    
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+    
+    // Criar um link temporário e fazer download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Mostrar notificação
+    const toast = document.createElement('div');
+    toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `
+        <i class="fas fa-check-circle me-2"></i>
+        Exportação CSV iniciada! O arquivo será baixado automaticamente.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(toast);
+    
+    // Remover notificação após 5 segundos
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 5000);
+}
+</script>
 @endpush

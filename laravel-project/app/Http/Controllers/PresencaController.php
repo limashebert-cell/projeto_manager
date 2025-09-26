@@ -268,4 +268,178 @@ class PresencaController extends Controller
             
         return view('admin.presencas.historico-alteracoes', compact('historico', 'dataInicio', 'dataFim', 'colaboradorId', 'colaboradores'));
     }
+    
+    /**
+     * Exportar histórico de alterações para CSV
+     */
+    public function exportarHistoricoCSV(Request $request)
+    {
+        $dataInicio = $request->get('data_inicio', now()->startOfMonth()->format('Y-m-d'));
+        $dataFim = $request->get('data_fim', now()->format('Y-m-d'));
+        $colaboradorId = $request->get('colaborador_id');
+        
+        $query = HistoricoPresenca::with(['adminUser', 'colaborador'])
+            ->where('admin_user_id', Auth::id())
+            ->whereBetween('data_presenca', [$dataInicio, $dataFim]);
+            
+        if ($colaboradorId) {
+            $query->where('colaborador_id', $colaboradorId);
+        }
+        
+        $historico = $query->orderBy('created_at', 'desc')->get();
+        
+        // Nome do arquivo
+        $fileName = 'historico_presencas_' . $dataInicio . '_a_' . $dataFim . '.csv';
+        
+        // Headers do CSV
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+        
+        $callback = function() use ($historico) {
+            $file = fopen('php://output', 'w');
+            
+            // BOM para UTF-8 (para Excel reconhecer acentos)
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Cabeçalho do CSV
+            fputcsv($file, [
+                'Data/Hora da Alteração',
+                'Colaborador',
+                'Prontuário',
+                'Data da Presença',
+                'Ação',
+                'Status Anterior',
+                'Novo Status',
+                'Observações Anteriores',
+                'Novas Observações',
+                'Usuário Responsável',
+                'IP Address',
+                'User Agent'
+            ], ';');
+            
+            // Dados
+            foreach ($historico as $item) {
+                fputcsv($file, [
+                    $item->created_at->format('d/m/Y H:i:s'),
+                    $item->colaborador->nome ?? 'N/A',
+                    $item->colaborador->prontuario ?? 'N/A',
+                    \Carbon\Carbon::parse($item->data_presenca)->format('d/m/Y'),
+                    ucfirst($item->acao),
+                    $item->status_anterior ? ucfirst(str_replace('_', ' ', $item->status_anterior)) : '-',
+                    ucfirst(str_replace('_', ' ', $item->status_novo)),
+                    $item->observacoes_anterior ?? '-',
+                    $item->observacoes_nova ?? '-',
+                    $item->adminUser->name ?? 'N/A',
+                    $item->ip_address ?? '-',
+                    $item->user_agent ?? '-'
+                ], ';');
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+    
+    /**
+     * Exportar histórico geral de presenças para CSV
+     */
+    public function exportarHistoricoGeralCSV(Request $request)
+    {
+        $dataInicio = $request->get('data_inicio', now()->subDays(3)->format('Y-m-d'));
+        $dataFim = $request->get('data_fim', now()->format('Y-m-d'));
+        $userId = Auth::id();
+        
+        // Buscar presenças registradas no período
+        $presencasRegistradas = Presenca::with('colaborador')
+            ->where('admin_user_id', $userId)
+            ->whereDate('data', '>=', $dataInicio)
+            ->whereDate('data', '<=', $dataFim)
+            ->orderBy('data', 'desc')
+            ->orderBy('colaborador_id')
+            ->get();
+        
+        // Nome do arquivo
+        $fileName = 'historico_geral_presencas_' . $dataInicio . '_a_' . $dataFim . '.csv';
+        
+        // Headers do CSV
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+        
+        $callback = function() use ($presencasRegistradas, $dataInicio, $dataFim, $userId) {
+            $file = fopen('php://output', 'w');
+            
+            // BOM para UTF-8 (para Excel reconhecer acentos)
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Cabeçalho do CSV
+            fputcsv($file, [
+                'Data',
+                'Colaborador',
+                'Prontuário',
+                'Status',
+                'Observações',
+                'Data de Registro',
+                'Responsável'
+            ], ';');
+            
+            // Buscar todos os colaboradores para incluir dias não registrados
+            $todosColaboradores = Colaborador::where('admin_user_id', $userId)
+                ->where('status', 'ativo')
+                ->orderBy('nome')
+                ->get();
+            
+            // Criar período de datas
+            $periodo = \Carbon\CarbonPeriod::create($dataInicio, $dataFim)->toArray();
+            
+            foreach ($periodo as $data) {
+                $dataFormatada = $data->format('Y-m-d');
+                
+                // Presenças registradas neste dia
+                $presencasDoDia = $presencasRegistradas->where('data', $dataFormatada);
+                
+                foreach ($todosColaboradores as $colaborador) {
+                    $presenca = $presencasDoDia->where('colaborador_id', $colaborador->id)->first();
+                    
+                    if ($presenca) {
+                        // Presença registrada
+                        fputcsv($file, [
+                            $data->format('d/m/Y'),
+                            $colaborador->nome,
+                            $colaborador->prontuario,
+                            ucfirst(str_replace('_', ' ', $presenca->status)),
+                            $presenca->observacoes ?? '-',
+                            $presenca->created_at->format('d/m/Y H:i:s'),
+                            $presenca->adminUser->name ?? 'N/A'
+                        ], ';');
+                    } else {
+                        // Presença não registrada
+                        fputcsv($file, [
+                            $data->format('d/m/Y'),
+                            $colaborador->nome,
+                            $colaborador->prontuario,
+                            'Não Registrado',
+                            '-',
+                            '-',
+                            '-'
+                        ], ';');
+                    }
+                }
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
 }
