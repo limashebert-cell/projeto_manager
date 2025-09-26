@@ -9,6 +9,16 @@
         Meus Colaboradores
     </h1>
     <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ route('colaboradores.download-template') }}" class="btn btn-outline-success">
+                <i class="fas fa-download me-1"></i>
+                Baixar Layout
+            </a>
+            <a href="{{ route('colaboradores.import') }}" class="btn btn-outline-info">
+                <i class="fas fa-upload me-1"></i>
+                Importar Dados
+            </a>
+        </div>
         <a href="{{ route('colaboradores.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-1"></i>
             Novo Colaborador

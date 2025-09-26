@@ -122,4 +122,190 @@ class ColaboradorController extends Controller
         return redirect()->route('colaboradores.index')
             ->with('success', 'Colaborador removido com sucesso!');
     }
+
+    /**
+     * Download do template CSV para importação
+     */
+    public function downloadTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="template_colaboradores.csv"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            
+            // BOM para UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Cabeçalhos do CSV
+            fputcsv($file, [
+                'prontuario',
+                'nome',
+                'data_admissao',
+                'contato',
+                'data_aniversario',
+                'cargo',
+                'status',
+                'tipo_inatividade',
+                'email'
+            ], ';');
+            
+            // Linha de exemplo
+            fputcsv($file, [
+                '123456',
+                'João da Silva',
+                '2023-01-15',
+                '(11) 99999-9999',
+                '1990-05-20',
+                'Auxiliar',
+                'ativo',
+                '',
+                'joao.silva@email.com'
+            ], ';');
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Mostrar formulário de importação
+     */
+    public function showImport()
+    {
+        return view('admin.colaboradores.import');
+    }
+
+    /**
+     * Processar importação de colaboradores
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'arquivo' => 'required|file|mimes:csv,txt|max:2048'
+        ]);
+
+        $adminUser = Auth::guard('admin')->user();
+        $arquivo = $request->file('arquivo');
+        $atualizarExistentes = $request->has('atualizar_existentes');
+        
+        $importados = 0;
+        $atualizados = 0;
+        $erros = [];
+        
+        try {
+            $handle = fopen($arquivo->getRealPath(), 'r');
+            
+            // Ler cabeçalho
+            $cabecalho = fgetcsv($handle, 1000, ';');
+            
+            // Verificar se tem BOM e remover se necessário
+            if (!empty($cabecalho[0])) {
+                $cabecalho[0] = preg_replace('/\x{FEFF}/u', '', $cabecalho[0]);
+            }
+            
+            $linha = 1;
+            while (($dados = fgetcsv($handle, 1000, ';')) !== false) {
+                $linha++;
+                
+                // Pular linhas vazias
+                if (empty(array_filter($dados))) {
+                    continue;
+                }
+                
+                try {
+                    // Mapear dados
+                    $dadosColaborador = [];
+                    foreach ($cabecalho as $index => $campo) {
+                        $dadosColaborador[$campo] = $dados[$index] ?? '';
+                    }
+                    
+                    // Validar campos obrigatórios
+                    if (empty($dadosColaborador['prontuario']) || 
+                        empty($dadosColaborador['nome']) ||
+                        empty($dadosColaborador['data_admissao']) ||
+                        empty($dadosColaborador['cargo']) ||
+                        empty($dadosColaborador['status'])) {
+                        
+                        $erros[] = "Linha {$linha}: Campos obrigatórios em branco (prontuario, nome, data_admissao, cargo, status)";
+                        continue;
+                    }
+                    
+                    // Verificar se colaborador já existe
+                    $colaboradorExistente = Colaborador::where('prontuario', $dadosColaborador['prontuario'])
+                                                     ->where('admin_user_id', $adminUser->id)
+                                                     ->first();
+                    
+                    if ($colaboradorExistente) {
+                        if ($atualizarExistentes) {
+                            // Atualizar colaborador existente
+                            $colaboradorExistente->update([
+                                'nome' => $dadosColaborador['nome'],
+                                'data_admissao' => $dadosColaborador['data_admissao'],
+                                'contato' => $dadosColaborador['contato'] ?? $colaboradorExistente->contato,
+                                'data_aniversario' => $dadosColaborador['data_aniversario'] ?? $colaboradorExistente->data_aniversario,
+                                'cargo' => $dadosColaborador['cargo'],
+                                'status' => $dadosColaborador['status'],
+                                'tipo_inatividade' => $dadosColaborador['tipo_inatividade'] ?? null,
+                                'email' => $dadosColaborador['email'] ?? $colaboradorExistente->email,
+                            ]);
+                            $atualizados++;
+                        } else {
+                            $erros[] = "Linha {$linha}: Colaborador com prontuário {$dadosColaborador['prontuario']} já existe";
+                        }
+                        continue;
+                    }
+                    
+                    // Criar novo colaborador
+                    Colaborador::create([
+                        'prontuario' => $dadosColaborador['prontuario'],
+                        'nome' => $dadosColaborador['nome'],
+                        'data_admissao' => $dadosColaborador['data_admissao'],
+                        'contato' => $dadosColaborador['contato'] ?? '',
+                        'data_aniversario' => $dadosColaborador['data_aniversario'] ?? null,
+                        'cargo' => $dadosColaborador['cargo'],
+                        'status' => $dadosColaborador['status'],
+                        'tipo_inatividade' => $dadosColaborador['tipo_inatividade'] ?? null,
+                        'email' => $dadosColaborador['email'] ?? null,
+                        'admin_user_id' => $adminUser->id,
+                    ]);
+                    
+                    $importados++;
+                    
+                } catch (\Exception $e) {
+                    $erros[] = "Linha {$linha}: Erro ao processar dados - " . $e->getMessage();
+                }
+            }
+            
+            fclose($handle);
+            
+            // Preparar mensagem de sucesso
+            $mensagem = "Importação concluída! ";
+            if ($importados > 0) {
+                $mensagem .= "{$importados} colaborador(es) importado(s). ";
+            }
+            if ($atualizados > 0) {
+                $mensagem .= "{$atualizados} colaborador(es) atualizado(s). ";
+            }
+            
+            if (!empty($erros)) {
+                return redirect()->route('colaboradores.import')
+                    ->with('import_errors', $erros)
+                    ->with('success', $mensagem);
+            }
+            
+            return redirect()->route('colaboradores.index')
+                ->with('success', $mensagem);
+                
+        } catch (\Exception $e) {
+            return redirect()->route('colaboradores.import')
+                ->with('error', 'Erro ao processar arquivo: ' . $e->getMessage());
+        }
+    }
 }

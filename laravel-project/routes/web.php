@@ -80,6 +80,11 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/{colaborador}/edit', [ColaboradorController::class, 'edit'])->name('edit');
         Route::put('/{colaborador}', [ColaboradorController::class, 'update'])->name('update');
         Route::delete('/{colaborador}', [ColaboradorController::class, 'destroy'])->name('destroy');
+        
+        // Rotas para importação em massa
+        Route::get('/download-template', [ColaboradorController::class, 'downloadTemplate'])->name('download-template');
+        Route::get('/import', [ColaboradorController::class, 'showImport'])->name('import');
+        Route::post('/import', [ColaboradorController::class, 'import'])->name('import.process');
     });
     
     // Rotas para controle de presença (todos os usuários autenticados)
