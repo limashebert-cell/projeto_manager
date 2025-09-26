@@ -172,17 +172,76 @@ class PresencaController extends Controller
     
     public function historico(Request $request)
     {
-        $dataInicio = $request->get('data_inicio', now()->startOfMonth()->format('Y-m-d'));
+        $dataInicio = $request->get('data_inicio', now()->subDays(3)->format('Y-m-d'));
         $dataFim = $request->get('data_fim', now()->format('Y-m-d'));
+        $userId = Auth::id();
         
-        $presencas = Presenca::with('colaborador')
-            ->where('admin_user_id', Auth::id())
-            ->whereBetween('data', [$dataInicio, $dataFim])
+        // Buscar todos os colaboradores do gerente
+        $todosColaboradores = Colaborador::where('admin_user_id', $userId)
+            ->where('status', 'ativo')
+            ->orderBy('nome')
+            ->get();
+        
+        // Buscar presenças registradas no período
+        $presencasRegistradas = Presenca::with('colaborador')
+            ->where('admin_user_id', $userId)
+            ->whereDate('data', '>=', $dataInicio)
+            ->whereDate('data', '<=', $dataFim)
             ->orderBy('data', 'desc')
-            ->orderBy('colaborador_id')
             ->get()
-            ->groupBy('data');
+            ->groupBy(function($presenca) {
+                return \Carbon\Carbon::parse($presenca->data)->format('Y-m-d');
+            });
+        
+        // Debug: Log das presenças encontradas
+        \Log::info('Histórico Debug', [
+            'user_id' => $userId,
+            'data_inicio' => $dataInicio,
+            'data_fim' => $dataFim,
+            'total_presencas' => $presencasRegistradas->flatten()->count(),
+            'presencas_por_dia' => $presencasRegistradas->map(function($presencas) {
+                return $presencas->count();
+            })->toArray()
+        ]);
+        
+        // Criar estrutura completa com todos os colaboradores para cada dia
+        $presencas = collect();
+        
+        $periodo = \Carbon\CarbonPeriod::create($dataInicio, $dataFim)->toArray();
+        // Reverter para ordem DESC (mais recente primeiro)
+        $periodo = array_reverse($periodo);
+        
+        foreach ($periodo as $data) {
+            $dataFormatada = $data->format('Y-m-d');
+            $presencasDoDia = collect();
             
+            foreach ($todosColaboradores as $colaborador) {
+                // Verificar se existe presença registrada para este colaborador nesta data
+                $presencasDoDiaRegistradas = $presencasRegistradas->get($dataFormatada);
+                $presencaExistente = $presencasDoDiaRegistradas ? $presencasDoDiaRegistradas->firstWhere('colaborador_id', $colaborador->id) : null;
+                
+                if ($presencaExistente) {
+                    $presencasDoDia->push($presencaExistente);
+                } else {
+                    // Criar objeto de presença "virtual" para colaborador sem registro
+                    $presencaVirtual = new \stdClass();
+                    $presencaVirtual->colaborador = $colaborador;
+                    $presencaVirtual->data = $dataFormatada;
+                    $presencaVirtual->status = null; // Não registrado
+                    $presencaVirtual->observacoes = null;
+                    $presencaVirtual->status_formatado = 'Não Registrado';
+                    $presencaVirtual->status_cor = 'secondary';
+                    
+                    $presencasDoDia->push($presencaVirtual);
+                }
+            }
+            
+            // Só adiciona o dia se tiver pelo menos uma presença registrada OU se for dentro do período solicitado
+            if ($presencasDoDia->count() > 0) {
+                $presencas->put($dataFormatada, $presencasDoDia->sortBy('colaborador.nome'));
+            }
+        }
+        
         return view('admin.presencas.historico', compact('presencas', 'dataInicio', 'dataFim'));
     }
     
