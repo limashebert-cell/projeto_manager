@@ -79,16 +79,12 @@
                                 name="area" 
                                 required>
                             <option value="">Selecione a área...</option>
+                            <option value="Picking" {{ old('area', $user->area) == 'Picking' ? 'selected' : '' }}>Picking</option>
+                            <option value="Cross" {{ old('area', $user->area) == 'Cross' ? 'selected' : '' }}>Cross</option>
+                            <option value="Expedição" {{ old('area', $user->area) == 'Expedição' ? 'selected' : '' }}>Expedição</option>
                             <option value="Administração" {{ old('area', $user->area) == 'Administração' ? 'selected' : '' }}>Administração</option>
-                            <option value="Financeiro" {{ old('area', $user->area) == 'Financeiro' ? 'selected' : '' }}>Financeiro</option>
-                            <option value="Recursos Humanos" {{ old('area', $user->area) == 'Recursos Humanos' ? 'selected' : '' }}>Recursos Humanos</option>
-                            <option value="Vendas" {{ old('area', $user->area) == 'Vendas' ? 'selected' : '' }}>Vendas</option>
-                            <option value="Marketing" {{ old('area', $user->area) == 'Marketing' ? 'selected' : '' }}>Marketing</option>
-                            <option value="Tecnologia da Informação" {{ old('area', $user->area) == 'Tecnologia da Informação' ? 'selected' : '' }}>Tecnologia da Informação</option>
-                            <option value="Operações" {{ old('area', $user->area) == 'Operações' ? 'selected' : '' }}>Operações</option>
-                            <option value="Atendimento ao Cliente" {{ old('area', $user->area) == 'Atendimento ao Cliente' ? 'selected' : '' }}>Atendimento ao Cliente</option>
-                            <option value="Jurídico" {{ old('area', $user->area) == 'Jurídico' ? 'selected' : '' }}>Jurídico</option>
-                            <option value="Outra" {{ old('area', $user->area) == 'Outra' ? 'selected' : '' }}>Outra</option>
+                            <option value="Recebimento" {{ old('area', $user->area) == 'Recebimento' ? 'selected' : '' }}>Recebimento</option>
+                            <option value="Armazenagem" {{ old('area', $user->area) == 'Armazenagem' ? 'selected' : '' }}>Armazenagem</option>
                         </select>
                         @error('area')
                             <div class="invalid-feedback">

@@ -13,9 +13,13 @@ class AddEmailToColaboradoresTable extends Migration
      */
     public function up()
     {
-        Schema::table('colaboradores', function (Blueprint $table) {
-            $table->string('email')->nullable()->after('nome');
-        });
+        // Esta migração tornou-se redundante porque a coluna 'email' já existe na criação inicial da tabela.
+        // Para evitar erro (Duplicate column) quando rodar em ambientes já migrados, verificamos antes.
+        if (!Schema::hasColumn('colaboradores', 'email')) {
+            Schema::table('colaboradores', function (Blueprint $table) {
+                $table->string('email')->nullable()->after('nome');
+            });
+        }
     }
 
     /**
@@ -25,8 +29,10 @@ class AddEmailToColaboradoresTable extends Migration
      */
     public function down()
     {
-        Schema::table('colaboradores', function (Blueprint $table) {
-            $table->dropColumn('email');
-        });
+        if (Schema::hasColumn('colaboradores', 'email')) {
+            Schema::table('colaboradores', function (Blueprint $table) {
+                $table->dropColumn('email');
+            });
+        }
     }
 }

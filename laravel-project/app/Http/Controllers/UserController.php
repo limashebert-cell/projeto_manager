@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AdminUser;
+use App\Models\Colaborador;
+use App\Models\Presenca;
+use App\Models\HistoricoPresenca;
+use App\Models\AuditoriaPresenca;
+use App\Models\TimeclockRecord;
+use App\Models\QuaseAcidente;
 
 class UserController extends Controller
 {
@@ -52,7 +58,20 @@ class UserController extends Controller
     public function show($id)
     {
         $user = AdminUser::findOrFail($id);
-        return view('admin.users.show', compact('user'));
+        
+        // Verificar relacionamentos
+        $relacionamentos = [
+            'colaboradores' => $user->colaboradores()->count(),
+            'presencas' => Presenca::where('admin_user_id', $user->id)->count(),
+            'historicos' => HistoricoPresenca::where('admin_user_id', $user->id)->count(),
+            'auditorias' => AuditoriaPresenca::where('admin_user_id', $user->id)->count(),
+            'timeclocks' => TimeclockRecord::where('admin_user_id', $user->id)->count(),
+            'quase_acidentes' => QuaseAcidente::where('responsavel_id', $user->id)->count(),
+        ];
+        
+        $totalRelacionamentos = array_sum($relacionamentos);
+        
+        return view('admin.users.show', compact('user', 'relacionamentos', 'totalRelacionamentos'));
     }
 
     public function edit($id)
@@ -95,6 +114,53 @@ class UserController extends Controller
         if ($user->role === 'super_admin') {
             return redirect()->route('admin.users.index')
                             ->with('error', 'Não é possível excluir o super administrador!');
+        }
+
+        // Verificar se existem registros relacionados
+        $relacionamentos = [];
+        
+        // Verificar colaboradores
+        $colaboradores = $user->colaboradores()->count();
+        if ($colaboradores > 0) {
+            $relacionamentos[] = "$colaboradores colaborador(es)";
+        }
+        
+        // Verificar presenças
+        $presencas = \App\Models\Presenca::where('admin_user_id', $user->id)->count();
+        if ($presencas > 0) {
+            $relacionamentos[] = "$presencas presença(s)";
+        }
+        
+        // Verificar histórico de presenças
+        $historicos = \App\Models\HistoricoPresenca::where('admin_user_id', $user->id)->count();
+        if ($historicos > 0) {
+            $relacionamentos[] = "$historicos histórico(s) de presença";
+        }
+        
+        // Verificar auditorias
+        $auditorias = \App\Models\AuditoriaPresenca::where('admin_user_id', $user->id)->count();
+        if ($auditorias > 0) {
+            $relacionamentos[] = "$auditorias auditoria(s) de presença";
+        }
+        
+        // Verificar timeclock records
+        $timeclocks = \App\Models\TimeclockRecord::where('admin_user_id', $user->id)->count();
+        if ($timeclocks > 0) {
+            $relacionamentos[] = "$timeclocks registro(s) de ponto";
+        }
+        
+        // Verificar quase acidentes
+        $quaseAcidentes = \App\Models\QuaseAcidente::where('responsavel_id', $user->id)->count();
+        if ($quaseAcidentes > 0) {
+            $relacionamentos[] = "$quaseAcidentes quase acidente(s)";
+        }
+
+        if (!empty($relacionamentos)) {
+            $mensagem = 'Não é possível excluir este usuário pois ele possui os seguintes registros relacionados: ' . implode(', ', $relacionamentos) . '. ';
+            $mensagem .= 'Para excluir o usuário, primeiro você deve transferir ou excluir esses registros, ou desativar o usuário em vez de excluí-lo.';
+            
+            return redirect()->route('admin.users.index')
+                            ->with('error', $mensagem);
         }
 
         $user->delete();

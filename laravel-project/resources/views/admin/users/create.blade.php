@@ -82,16 +82,12 @@
                                 name="area" 
                                 required>
                             <option value="">Selecione a área...</option>
+                            <option value="Picking" {{ old('area') == 'Picking' ? 'selected' : '' }}>Picking</option>
+                            <option value="Cross" {{ old('area') == 'Cross' ? 'selected' : '' }}>Cross</option>
+                            <option value="Expedição" {{ old('area') == 'Expedição' ? 'selected' : '' }}>Expedição</option>
                             <option value="Administração" {{ old('area') == 'Administração' ? 'selected' : '' }}>Administração</option>
-                            <option value="Financeiro" {{ old('area') == 'Financeiro' ? 'selected' : '' }}>Financeiro</option>
-                            <option value="Recursos Humanos" {{ old('area') == 'Recursos Humanos' ? 'selected' : '' }}>Recursos Humanos</option>
-                            <option value="Vendas" {{ old('area') == 'Vendas' ? 'selected' : '' }}>Vendas</option>
-                            <option value="Marketing" {{ old('area') == 'Marketing' ? 'selected' : '' }}>Marketing</option>
-                            <option value="Tecnologia da Informação" {{ old('area') == 'Tecnologia da Informação' ? 'selected' : '' }}>Tecnologia da Informação</option>
-                            <option value="Operações" {{ old('area') == 'Operações' ? 'selected' : '' }}>Operações</option>
-                            <option value="Atendimento ao Cliente" {{ old('area') == 'Atendimento ao Cliente' ? 'selected' : '' }}>Atendimento ao Cliente</option>
-                            <option value="Jurídico" {{ old('area') == 'Jurídico' ? 'selected' : '' }}>Jurídico</option>
-                            <option value="Outra" {{ old('area') == 'Outra' ? 'selected' : '' }}>Outra</option>
+                            <option value="Recebimento" {{ old('area') == 'Recebimento' ? 'selected' : '' }}>Recebimento</option>
+                            <option value="Armazenagem" {{ old('area') == 'Armazenagem' ? 'selected' : '' }}>Armazenagem</option>
                         </select>
                         @error('area')
                             <div class="invalid-feedback">
