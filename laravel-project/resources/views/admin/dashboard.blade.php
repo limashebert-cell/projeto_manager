@@ -3,8 +3,14 @@
 @section('title', 'Painel de Controle - Gerenciamento de Usuários')
 
 @section('content')
-<div class="border-bottom mb-2">
+<div class="border-bottom mb-2 d-flex justify-content-between align-items-center">
     <h3>Painel de Gerenciamento</h3>
+    <div class="text-end">
+        <small class="text-muted">
+            <i class="fas fa-palette me-1"></i>
+            <strong class="text-primary">Hebert Design</strong>
+        </small>
+    </div>
 </div>
 
 @if(Auth::guard('admin')->user()->isSuperAdmin())

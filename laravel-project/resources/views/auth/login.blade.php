@@ -70,6 +70,13 @@
                     Sistema protegido - Acesso restrito
                 </small>
             </div>
+            
+            <div class="text-center mt-2">
+                <small class="text-light">
+                    <i class="fas fa-code me-1"></i>
+                    Desenvolvido por <strong>Hebert Design</strong>
+                </small>
+            </div>
         </div>
     </div>
 </div>

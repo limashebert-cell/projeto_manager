@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!-- 
+    Sistema de Gestão Empresarial
+    Desenvolvido por: Hebert Design
+    Data: {{ date('Y') }}
+    Tecnologias: Laravel, Bootstrap, JavaScript
+-->
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -14,6 +20,9 @@
             font-family: system-ui, sans-serif;
             font-size: 13px;
             line-height: 1.3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .navbar { 
             background: #343a40 !important; 
@@ -35,6 +44,7 @@
         }
         .main-content { 
             padding: 10px;
+            flex: 1;
         }
         .card { 
             border: 1px solid #dee2e6; 
@@ -48,6 +58,22 @@
             padding: 6px 10px;
             font-weight: 600;
             font-size: 14px;
+        }
+        
+        /* Footer Hebert Design */
+        .footer {
+            background: #f8f9fa !important;
+            border-top: 2px solid #e9ecef;
+            font-size: 12px;
+            margin-top: auto;
+        }
+        .footer .text-primary {
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+        .footer .text-muted {
+            color: #6c757d !important;
+        }
         }
         .card-body {
             padding: 10px;
@@ -190,13 +216,23 @@
             <!-- Navbar -->
             <nav class="navbar navbar-dark">
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-                        Painel Admin
+                    <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+                        <i class="fas fa-cogs me-2"></i>
+                        <span>Painel Admin</span>
+                        <small class="ms-2 text-muted" style="font-size: 10px;">by Hebert Design</small>
                     </a>
                     
                     <ul class="navbar-nav d-flex flex-row">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('logout.get') }}">Sair</a>
+                            <span class="nav-link text-light me-3">
+                                <i class="fas fa-user me-1"></i>
+                                {{ Auth::guard('admin')->user()->name ?? 'Usuário' }}
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('logout.get') }}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Sair
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -224,6 +260,25 @@
 
                 @yield('content')
             </main>
+            
+            <!-- Footer com marca -->
+            <footer class="footer mt-auto py-2 bg-light border-top">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <span class="text-muted small">
+                                © {{ date('Y') }} Sistema de Gestão - Todos os direitos reservados
+                            </span>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="text-muted small">
+                                <i class="fas fa-code me-1"></i>
+                                Desenvolvido por <strong class="text-primary">Hebert Design</strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
 
