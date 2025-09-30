@@ -30,6 +30,23 @@ class Presenca extends Model
         'data_hora_registro' => 'datetime',
         'detalhes_registro' => 'array'
     ];
+
+    // Garantir que as datas usem o timezone correto
+    protected function asDateTime($value)
+    {
+        if ($value === null) {
+            return $value;
+        }
+        
+        $datetime = parent::asDateTime($value);
+        
+        // Se já tem timezone, converte para o timezone da aplicação
+        if ($datetime instanceof \Carbon\Carbon) {
+            return $datetime->setTimezone(config('app.timezone'));
+        }
+        
+        return $datetime;
+    }
     
     // Relacionamentos
     public function adminUser()
