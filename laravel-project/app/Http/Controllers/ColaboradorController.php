@@ -32,8 +32,6 @@ class ColaboradorController extends Controller
         $request->validate([
             'prontuario' => 'required|string|max:50|unique:colaboradores,prontuario',
             'nome' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:colaboradores,email',
-            'telefone' => 'nullable|string|max:255',
             'data_admissao' => 'required|date',
             'contato' => 'required|string|max:255',
             'data_aniversario' => 'required|date',
@@ -94,8 +92,6 @@ class ColaboradorController extends Controller
         $request->validate([
             'prontuario' => 'required|string|max:50|unique:colaboradores,prontuario,' . $colaborador->id,
             'nome' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:colaboradores,email,' . $colaborador->id,
-            'telefone' => 'nullable|string|max:255',
             'data_admissao' => 'required|date',
             'contato' => 'required|string|max:255',
             'data_aniversario' => 'required|date',
@@ -150,28 +146,26 @@ class ColaboradorController extends Controller
             fputcsv($file, [
                 'prontuario',
                 'nome',
-                'email',
-                'telefone',
                 'data_admissao',
                 'contato',
                 'data_aniversario',
                 'cargo',
                 'status',
-                'tipo_inatividade'
+                'tipo_inatividade',
+                'email'
             ], ';');
             
             // Linha de exemplo
             fputcsv($file, [
                 '123456',
                 'João da Silva',
-                'joao.silva@email.com',
-                '(11) 99999-9999',
                 '2023-01-15',
-                '(11) 88888-8888',
+                '(11) 99999-9999',
                 '1990-05-20',
                 'Auxiliar',
                 'ativo',
-                ''
+                '',
+                'joao.silva@email.com'
             ], ';');
             
             fclose($file);
@@ -235,12 +229,11 @@ class ColaboradorController extends Controller
                     // Validar campos obrigatórios
                     if (empty($dadosColaborador['prontuario']) || 
                         empty($dadosColaborador['nome']) ||
-                        empty($dadosColaborador['email']) ||
                         empty($dadosColaborador['data_admissao']) ||
                         empty($dadosColaborador['cargo']) ||
                         empty($dadosColaborador['status'])) {
                         
-                        $erros[] = "Linha {$linha}: Campos obrigatórios em branco (prontuario, nome, email, data_admissao, cargo, status)";
+                        $erros[] = "Linha {$linha}: Campos obrigatórios em branco (prontuario, nome, data_admissao, cargo, status)";
                         continue;
                     }
                     
@@ -254,14 +247,13 @@ class ColaboradorController extends Controller
                             // Atualizar colaborador existente
                             $colaboradorExistente->update([
                                 'nome' => $dadosColaborador['nome'],
-                                'email' => $dadosColaborador['email'] ?? $colaboradorExistente->email,
-                                'telefone' => $dadosColaborador['telefone'] ?? $colaboradorExistente->telefone,
                                 'data_admissao' => $dadosColaborador['data_admissao'],
                                 'contato' => $dadosColaborador['contato'] ?? $colaboradorExistente->contato,
                                 'data_aniversario' => $dadosColaborador['data_aniversario'] ?? $colaboradorExistente->data_aniversario,
                                 'cargo' => $dadosColaborador['cargo'],
                                 'status' => $dadosColaborador['status'],
                                 'tipo_inatividade' => $dadosColaborador['tipo_inatividade'] ?? null,
+                                'email' => $dadosColaborador['email'] ?? $colaboradorExistente->email,
                             ]);
                             $atualizados++;
                         } else {
@@ -274,14 +266,13 @@ class ColaboradorController extends Controller
                     Colaborador::create([
                         'prontuario' => $dadosColaborador['prontuario'],
                         'nome' => $dadosColaborador['nome'],
-                        'email' => $dadosColaborador['email'] ?? '',
-                        'telefone' => $dadosColaborador['telefone'] ?? null,
                         'data_admissao' => $dadosColaborador['data_admissao'],
                         'contato' => $dadosColaborador['contato'] ?? '',
                         'data_aniversario' => $dadosColaborador['data_aniversario'] ?? null,
                         'cargo' => $dadosColaborador['cargo'],
                         'status' => $dadosColaborador['status'],
                         'tipo_inatividade' => $dadosColaborador['tipo_inatividade'] ?? null,
+                        'email' => $dadosColaborador['email'] ?? null,
                         'admin_user_id' => $adminUser->id,
                     ]);
                     

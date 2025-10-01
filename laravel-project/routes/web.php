@@ -76,16 +76,15 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/', [ColaboradorController::class, 'index'])->name('index');
         Route::get('/create', [ColaboradorController::class, 'create'])->name('create');
         Route::post('/', [ColaboradorController::class, 'store'])->name('store');
-        
-        // Rotas para importação em massa (devem vir ANTES das rotas com parâmetros)
-        Route::get('/download-template', [ColaboradorController::class, 'downloadTemplate'])->name('download-template');
-        Route::get('/import', [ColaboradorController::class, 'showImport'])->name('import');
-        Route::post('/import', [ColaboradorController::class, 'import'])->name('import.process');
-        
         Route::get('/{colaborador}', [ColaboradorController::class, 'show'])->name('show');
         Route::get('/{colaborador}/edit', [ColaboradorController::class, 'edit'])->name('edit');
         Route::put('/{colaborador}', [ColaboradorController::class, 'update'])->name('update');
         Route::delete('/{colaborador}', [ColaboradorController::class, 'destroy'])->name('destroy');
+        
+        // Rotas para importação em massa
+        Route::get('/download-template', [ColaboradorController::class, 'downloadTemplate'])->name('download-template');
+        Route::get('/import', [ColaboradorController::class, 'showImport'])->name('import');
+        Route::post('/import', [ColaboradorController::class, 'import'])->name('import.process');
     });
     
     // Rotas para controle de presença (todos os usuários autenticados)
