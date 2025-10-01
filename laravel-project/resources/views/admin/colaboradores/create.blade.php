@@ -72,6 +72,40 @@
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>
+                                Email *
+                            </label>
+                            <input type="email" 
+                                   class="form-control @error('email') is-invalid @enderror" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{ old('email') }}" 
+                                   required>
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="telefone" class="form-label">
+                                <i class="fas fa-phone me-1"></i>
+                                Telefone
+                            </label>
+                            <input type="text" 
+                                   class="form-control @error('telefone') is-invalid @enderror" 
+                                   id="telefone" 
+                                   name="telefone" 
+                                   value="{{ old('telefone') }}" 
+                                   placeholder="(11) 99999-9999">
+                            @error('telefone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label for="data_admissao" class="form-label">
                                 <i class="fas fa-calendar-plus me-1"></i>
                                 Data de Admissão *

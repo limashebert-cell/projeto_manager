@@ -14,19 +14,19 @@ class TestUserSeeder extends Seeder
      */
     public function run()
     {
-        // Criar um usuário administrador regular (sem acesso ao gerenciamento de usuários)
+        // Criar um usuário gestor regular (sem acesso ao gerenciamento de usuários)
         AdminUser::create([
             'name' => 'João Silva',
             'username' => 'joao',
             'password' => '123456',
             'area' => 'Vendas',
-            'role' => 'admin',
+            'role' => 'gestor',
             'active' => true,
         ]);
 
         echo "Usuário de teste criado!\n";
         echo "Usuário: joao\n";
         echo "Senha: 123456\n";
-        echo "Tipo: Admin (sem acesso ao gerenciamento de usuários)\n";
+        echo "Tipo: Gestor (sem acesso ao gerenciamento de usuários)\n";
     }
 }

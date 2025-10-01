@@ -122,8 +122,10 @@
                         <li>Preencha com os dados dos colaboradores</li>
                         <li>Mantenha o formato das colunas</li>
                         <li>Datas no formato: YYYY-MM-DD</li>
-                        <li>Status: ativo, inativo, afastado ou desligado</li>
-                        <li>Salve como CSV (separado por vírgulas)</li>
+                        <li>Cargo: Auxiliar, Conferente, Adm ou Op Empilhadeira</li>
+                        <li>Status: ativo ou inativo</li>
+                        <li>Email deve ser único no sistema</li>
+                        <li>Use ponto e vírgula (;) como separador</li>
                     </ul>
                 </div>
             </div>
@@ -140,10 +142,11 @@
                 <ul class="list-unstyled mb-0 small">
                     <li><strong>prontuario:</strong> Número único do colaborador</li>
                     <li><strong>nome:</strong> Nome completo</li>
+                    <li><strong>email:</strong> Email do colaborador (único)</li>
                     <li><strong>data_admissao:</strong> Data de admissão (YYYY-MM-DD)</li>
-                    <li><strong>cargo:</strong> Cargo/função</li>
-                    <li><strong>status:</strong> ativo/inativo/afastado/desligado</li>
-                    <li class="text-muted mt-2"><em>Outros campos são opcionais</em></li>
+                    <li><strong>cargo:</strong> Auxiliar, Conferente, Adm, Op Empilhadeira</li>
+                    <li><strong>status:</strong> ativo/inativo</li>
+                    <li class="text-muted mt-2"><em>telefone, contato, data_aniversario, tipo_inatividade são opcionais</em></li>
                 </ul>
             </div>
         </div>

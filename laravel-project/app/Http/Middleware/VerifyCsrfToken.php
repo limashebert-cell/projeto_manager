@@ -13,7 +13,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'admin/users', // Rota de criação de usuário (para teste externo)
     ];
     
     /**

@@ -46,6 +46,13 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
+                
+            // Carregando rotas de teste se o arquivo existir
+            if (file_exists(base_path('routes/test.php'))) {
+                Route::middleware('web')
+                    ->namespace($this->namespace)
+                    ->group(base_path('routes/test.php'));
+            }
         });
     }
 

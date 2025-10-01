@@ -22,9 +22,9 @@ class SuperAdminMiddleware
 
         $user = auth('admin')->user();
         
-        if (!$user->isSuperAdmin()) {
+        if (!$user->canManageUsers()) {
             return redirect()->route('admin.dashboard')
-                           ->with('error', 'Acesso negado! Apenas o Super Administrador pode acessar esta funcionalidade.');
+                           ->with('error', 'Acesso negado! Apenas Super Administradores e Gerentes podem acessar esta funcionalidade.');
         }
 
         return $next($request);

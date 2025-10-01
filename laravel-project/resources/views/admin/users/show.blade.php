@@ -63,7 +63,20 @@
                             </label>
                             <p>
                                 <span class="badge bg-{{ $user->role === 'super_admin' ? 'danger' : 'primary' }} fs-6">
-                                    {{ $user->role === 'super_admin' ? 'Super Administrador' : 'Administrador' }}
+                                    {{ $user->getRoleName() }}
+                                </span>
+                            </p>
+                        </div>
+                        
+                        <!-- NOVO CAMPO NIVEL -->
+                        <div class="mb-3" style="border: 2px solid #28a745; border-radius: 8px; padding: 15px; background: #f8fff9;">
+                            <label class="form-label text-muted">
+                                <i class="fas fa-star me-2 text-success"></i>Nível 
+                                <span class="badge bg-success ms-2">NOVO</span>
+                            </label>
+                            <p>
+                                <span class="badge bg-success fs-6">
+                                    {{ $user->getNivelName() }}
                                 </span>
                             </p>
                         </div>
@@ -118,6 +131,80 @@
         <div class="card">
             <div class="card-header">
                 <h6 class="card-title mb-0">
+                    <i class="fas fa-link me-2"></i>
+                    Registros Relacionados
+                </h6>
+            </div>
+            <div class="card-body">
+                @if($totalRelacionamentos > 0)
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Atenção!</strong> Este usuário possui {{ $totalRelacionamentos }} registro(s) relacionado(s).
+                        <br><small>A exclusão não será permitida até que esses registros sejam transferidos ou removidos.</small>
+                    </div>
+                @else
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>OK!</strong> Este usuário não possui registros relacionados e pode ser excluído com segurança.
+                    </div>
+                @endif
+                
+                <div class="list-group list-group-flush">
+                    @if($relacionamentos['colaboradores'] > 0)
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <span><i class="fas fa-users me-2 text-primary"></i>Colaboradores</span>
+                            <span class="badge bg-primary rounded-pill">{{ $relacionamentos['colaboradores'] }}</span>
+                        </div>
+                    @endif
+                    
+                    @if($relacionamentos['presencas'] > 0)
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <span><i class="fas fa-calendar-check me-2 text-success"></i>Presenças</span>
+                            <span class="badge bg-success rounded-pill">{{ $relacionamentos['presencas'] }}</span>
+                        </div>
+                    @endif
+                    
+                    @if($relacionamentos['historicos'] > 0)
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <span><i class="fas fa-history me-2 text-info"></i>Histórico Presença</span>
+                            <span class="badge bg-info rounded-pill">{{ $relacionamentos['historicos'] }}</span>
+                        </div>
+                    @endif
+                    
+                    @if($relacionamentos['auditorias'] > 0)
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <span><i class="fas fa-search me-2 text-warning"></i>Auditorias</span>
+                            <span class="badge bg-warning rounded-pill">{{ $relacionamentos['auditorias'] }}</span>
+                        </div>
+                    @endif
+                    
+                    @if($relacionamentos['timeclocks'] > 0)
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <span><i class="fas fa-clock me-2 text-secondary"></i>Registros Ponto</span>
+                            <span class="badge bg-secondary rounded-pill">{{ $relacionamentos['timeclocks'] }}</span>
+                        </div>
+                    @endif
+                    
+                    @if($relacionamentos['quase_acidentes'] > 0)
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-2">
+                            <span><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Quase Acidentes</span>
+                            <span class="badge bg-danger rounded-pill">{{ $relacionamentos['quase_acidentes'] }}</span>
+                        </div>
+                    @endif
+                    
+                    @if($totalRelacionamentos == 0)
+                        <div class="list-group-item text-center p-3 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <br>Nenhum registro relacionado
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
                     <i class="fas fa-cogs me-2"></i>
                     Ações
                 </h6>
@@ -138,6 +225,23 @@
                             {{ $user->active ? 'Desativar' : 'Ativar' }} Usuário
                         </button>
                     </form>
+                    
+                    @if($totalRelacionamentos == 0)
+                        <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" 
+                              onsubmit="return confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fas fa-trash me-2"></i>Excluir Usuário
+                            </button>
+                        </form>
+                    @else
+                        <button type="button" class="btn btn-danger w-100" disabled title="Usuário possui registros relacionados">
+                            <i class="fas fa-trash me-2"></i>Exclusão Bloqueada
+                        </button>
+                        <small class="text-muted d-block mt-2 text-center">
+                            Para excluir, primeiro transfira ou remova os registros relacionados.
+                        </small>
+                    @endif
                     
                     @if($user->role !== 'super_admin')
                         <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST">

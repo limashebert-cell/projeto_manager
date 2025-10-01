@@ -3,11 +3,17 @@
 @section('title', 'Painel de Controle - Gerenciamento de Usuários')
 
 @section('content')
-<div class="border-bottom mb-2">
+<div class="border-bottom mb-2 d-flex justify-content-between align-items-center">
     <h3>Painel de Gerenciamento</h3>
+    <div class="text-end">
+        <small class="text-muted">
+            <i class="fas fa-palette me-1"></i>
+            <strong class="text-primary">Hebert Design</strong>
+        </small>
+    </div>
 </div>
 
-@if(Auth::guard('admin')->user()->isSuperAdmin())
+@if(Auth::guard('admin')->user()->canManageUsers())
 <div class="row mb-2">
     <div class="col-md-4">
         <div class="card bg-primary text-white">
@@ -66,7 +72,7 @@
                     <span>Quase Acidente</span>
                 </a>
             </div>
-            @if(Auth::guard('admin')->user()->isSuperAdmin())
+            @if(Auth::guard('admin')->user()->canManageUsers())
             <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                 <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary btn-lg btn-menu-principal d-flex flex-column align-items-center justify-content-center">
                     <i class="fas fa-user-cog fa-2x mb-2"></i>
@@ -130,7 +136,7 @@
                                 <td>{{ $user->username }}</td>
                                 <td>
                                     <span class="badge bg-{{ $user->role === 'super_admin' ? 'danger' : 'primary' }}">
-                                        {{ $user->role === 'super_admin' ? 'Super' : 'Admin' }}
+                                        {{ $user->getRoleName() }}
                                     </span>
                                 </td>
                                 <td>

@@ -18,6 +18,8 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Usuário</th>
+                            <th>Role</th>
+                            <th>Nível</th>
                             <th>Status</th>
                             <th>Ações</th>
                         </tr>
@@ -35,6 +37,16 @@
                                     </div>
                                 </td>
                                 <td>{{ $user->username }}</td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        {{ $user->getRoleName() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        {{ $user->getNivelName() }}
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="badge bg-{{ $user->active ? 'success' : 'danger' }}">
                                         {{ $user->active ? 'Ativo' : 'Inativo' }}
